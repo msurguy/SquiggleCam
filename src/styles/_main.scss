@@ -1,0 +1,70 @@
+body{
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #333;
+  background-color: #fff;
+}
+svg {
+  z-index: 1;
+}
+
+video {
+  width: 100px;
+  height: 100px;
+  display: block;
+}
+
+.settings-container {
+  flex: 1;
+}
+
+.status-container {
+  flex: 0 0 100px;
+}
+
+#status {
+  display: inline-block;
+  width: 100px;
+  text-align: center;
+  padding-bottom: 10px;
+}
+
+p {
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+}
+
+.actions {
+  background-color: black;
+  color: white;
+  z-index: 100;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 210px;
+  display: flex;
+}
+
+.sliders {
+  display: flex;
+
+  flex-direction: row;
+  flex: 1;
+}
+
+.col-50 {
+  position: relative;
+  margin: 0;
+  padding: 10px;
+  flex: 1;
+}
+
+
+#drawButton {
+  margin-top: 10px;
+}

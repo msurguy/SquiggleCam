@@ -1,0 +1,25 @@
+{
+  "name": "SquiggleCam",
+  "version": "1.0.0",
+  "description": "Turn Images into squiggles for CNC machining",
+  "main": "index.js",
+  "scripts": {
+    "dev": "NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "watch": "NODE_ENV=development node_modules/webpack/bin/webpack.js --watch --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "hot": "NODE_ENV=development webpack-dev-server --inline --hot --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "production": "NODE_ENV=production node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
+  },
+  "keywords": ["SquiggleDraw", "CNC", "SVG", "Laser Cutting"],
+  "author": "Maksim Surguy",
+  "license": "MIT",
+  "devDependencies": {
+    "browser-sync": "^2.18.13",
+    "browser-sync-webpack-plugin": "^1.2.0",
+    "laravel-mix": "^1.6.1",
+    "webpack-livereload-plugin": "^1.0.0"
+  },
+  "dependencies": {
+    "d3": "^4.11.0",
+    "rangeslider-js": "^3.0.2"
+  }
+}
