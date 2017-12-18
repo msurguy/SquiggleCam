@@ -60,7 +60,7 @@ self.addEventListener('message', function(e) {
       z = Math.max(config.MAX_BRIGHTNESS-b,0);  // Set maximum line curvature to value set by the user
 
       // The magic of the script, determines how high / low the squiggle goes
-      r = z / (config.LINE_COUNT * config.AMPLITUDE);
+      r = config.AMPLITUDE * z / config.LINE_COUNT;
 
       a += z / config.FREQUENCY;
       currentCoordinates.push([x,y + Math.sin(a)*r]);

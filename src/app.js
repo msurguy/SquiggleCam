@@ -131,9 +131,19 @@ drawButton.addEventListener('click', () => {
 
   const blob = new Blob([svgDoctype + svgString], {type: 'image/svg+xml;charset=utf-8'});
 
-  console.log(blob);
+  /* This portion of script saves the file to local filesystem as a download */
+  const svgUrl = URL.createObjectURL(blob);
+
+  const downloadLink = document.createElement("a");
+  downloadLink.href = svgUrl;
+  downloadLink.download = "squiggleCam_" + Date.now() + ".svg";
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
+
+
   /*
-  // If you wanted to upload the image instead, use something like this:
+  // If you wanted to upload the image to a server instead, use something like this:
 
   const oReq = new XMLHttpRequest();
   oReq.open("POST", serverIPAddress + ':3000/upload', true);
@@ -153,68 +163,50 @@ drawButton.addEventListener('click', () => {
 
 // Attach listener to each of the range sliders
 rangesliderJs.create(lineCountValue, {
-  onSlideEnd: (val) => {
+  onSlide: (val) => {
     lineCountValueEl.innerHTML = val;
     config.LINE_COUNT = val;
     processImage();
-  },
-  onSlide: (val) => {
-    lineCountValueEl.innerHTML = val;
   }
 });
 
 rangesliderJs.create(amplitudeValue, {
-  onSlideEnd: (val) => {
+  onSlide: (val) => {
     amplitudeValueEl.innerHTML = val;
     config.AMPLITUDE = val;
     processImage();
-  },
-  onSlide: (val) => {
-    amplitudeValueEl.innerHTML = val;
   }
 });
 
 rangesliderJs.create(lineSpacingValue, {
-  onSlideEnd: (val) => {
+  onSlide: (val) => {
     lineSpacingValueEl.innerHTML = val;
     config.SPACING = val;
     processImage();
-  },
-  onSlide: (val) => {
-    lineSpacingValueEl.innerHTML = val;
   }
 });
 
 rangesliderJs.create(frequencyValue, {
-  onSlideEnd: (val) => {
+  onSlide: (val) => {
     frequencyValueEl.innerHTML = val;
     config.FREQUENCY = val;
     processImage();
-  },
-  onSlide: (val) => {
-    frequencyValueEl.innerHTML = val;
   }
 });
 
 rangesliderJs.create(brightnessValue, {
-  onSlideEnd: (val) => {
+  onSlide: (val) => {
     brightnessValueEl.innerHTML = val;
     config.BRIGHTNESS_ADJUSTMENT = val;
     processImage();
-  },
-  onSlide: (val) => {
-    brightnessValueEl.innerHTML = val;
   }
 });
 
 rangesliderJs.create(contrastValue, {
-  onSlideEnd: (val) => {
+  onSlide: (val) => {
     contrastValueEl.innerHTML = val;
     config.CONTRAST_ADJUSTMENT = val;
     processImage();
-  },
-  onSlide: (val) => {
-    contrastValueEl.innerHTML = val;
   }
 });
 
