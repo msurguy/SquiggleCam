@@ -10,10 +10,9 @@ Here's an example of output image generated with this tool:
 
 And here's my project that uses this tool:
 
-![Video of SquiggleCam in use](https://raw.githubusercontent.com/msurguy/SquiggleCam/master/examples/botomazov.jpg "Video of SquiggleCam in use")
+[![Video of SquiggleCam in use](https://raw.githubusercontent.com/msurguy/SquiggleCam/master/examples/botomazov.jpg)](https://www.youtube.com/watch?v=abBnMcs58ds)
 
-
-I'll soon update the code to be able to upload images as well as take webcam pictures.
+I'll update the code soon in order to be able to upload images as well as take webcam pictures.
 
 # Installation and running
 
