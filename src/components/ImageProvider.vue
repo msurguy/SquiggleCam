@@ -2,21 +2,33 @@
   <div>
     <img v-bind:src="imagePreview" alt="">
     <input type="file" @change="updatePreview">
-    <canvas ref="resizedPreview"></canvas>
+    <canvas ref="originalCanvas"></canvas>
+    <canvas ref="resizedCanvas" width="300" height="300"></canvas>
   </div>
 </template>
 
 <script>
   import Pica from 'pica';
+  import getOrientation from '../lib/imageUtils';
 
   export default {
     name: "FileUploader",
     data: function(){
       return {
         offscreenImage: null,
-        imageData: null,
+        uploadedFile: {
+          name: '',
+          size: 0,
+          type: '',
+        },
+        uploadedImage: {
+          width: 0,
+          height: 0,
+          data: [],
+          orientation: 0
+        },
         imagePreview: '',
-        imageOrientation: 0
+        pica: undefined
       }
     },
     created: function(){
@@ -26,142 +38,124 @@
 
       img.onload = () => {
         console.log(img);
-      }
+      };
+
+      this.pica = Pica();
     },
     methods: {
-      getOrientation(data) {
-        let view = new DataView(data);
-        if (view.getUint16(0, false) != 0xFFD8)
-        {
-          return -2;
-        }
-        let length = view.byteLength, offset = 2;
-        while (offset < length)
-        {
-          if (view.getUint16(offset+2, false) <= 8) return -1;
-          let marker = view.getUint16(offset, false);
-          offset += 2;
-          if (marker == 0xFFE1)
-          {
-            if (view.getUint32(offset += 2, false) != 0x45786966)
-            {
-              return -1;
-            }
-
-            let little = view.getUint16(offset += 6, false) == 0x4949;
-            offset += view.getUint32(offset + 4, little);
-            let tags = view.getUint16(offset, little);
-            offset += 2;
-            for (let i = 0; i < tags; i++)
-            {
-              if (view.getUint16(offset + (i * 12), little) == 0x0112)
-              {
-                return view.getUint16(offset + (i * 12) + 8, little);
-              }
-            }
-          }
-          else if ((marker & 0xFF00) != 0xFF00)
-          {
-            break;
-          }
-          else
-          {
-            offset += view.getUint16(offset, false);
-          }
-        }
-        return -1;
-      },
       orientImage(canvas, ctx, orientation) {
-          let width = canvas.width;
-          let height = canvas.height;
+        let width = canvas.width;
+        let height = canvas.height;
 
-          if (!orientation || orientation > 8) return;
+        if (!orientation || orientation > 8) return;
 
-          if (orientation > 4) {
-            ctx.canvas.width = height;
-            ctx.canvas.height = width;
-          }
+        if (orientation > 4) {
+          ctx.canvas.width = height;
+          ctx.canvas.height = width;
+        }
 
-          switch (orientation) {
+        switch (orientation) {
 
-            case 2:
-              // Horizontal flip
-              ctx.translate(width, 0);
-              ctx.scale(-1, 1);
-              break;
+          case 2:
+            // Horizontal flip
+            ctx.translate(width, 0);
+            ctx.scale(-1, 1);
+            break;
 
-            case 3:
-              // rotate 180 degrees left
-              ctx.translate(width, height);
-              ctx.rotate(Math.PI);
-              break;
+          case 3:
+            // rotate 180 degrees left
+            ctx.translate(width, height);
+            ctx.rotate(Math.PI);
+            break;
 
-            case 4:
-              // Vertical flip
-              ctx.translate(0, height);
-              ctx.scale(1, -1);
-              break;
+          case 4:
+            // Vertical flip
+            ctx.translate(0, height);
+            ctx.scale(1, -1);
+            break;
 
-            case 5:
-              // Vertical flip + rotate right
-              ctx.rotate(0.5 * Math.PI);
-              ctx.scale(1, -1);
-              break;
+          case 5:
+            // Vertical flip + rotate right
+            ctx.rotate(0.5 * Math.PI);
+            ctx.scale(1, -1);
+            break;
 
-            case 6:
-              // Rotate right
-              ctx.rotate(0.5 * Math.PI);
-              ctx.translate(0, -height);
-              break;
+          case 6:
+            // Rotate right
+            ctx.rotate(0.5 * Math.PI);
+            ctx.translate(0, -height);
+            break;
 
-            case 7:
-              // Horizontal flip + rotate right
-              ctx.rotate(0.5 * Math.PI);
-              ctx.translate(width, -height);
-              ctx.scale(-1, 1);
-              break;
+          case 7:
+            // Horizontal flip + rotate right
+            ctx.rotate(0.5 * Math.PI);
+            ctx.translate(width, -height);
+            ctx.scale(-1, 1);
+            break;
 
-            case 8:
-              // Rotate left
-              ctx.rotate(-0.5 * Math.PI);
-              ctx.translate(-width, 0);
-              break;
+          case 8:
+            // Rotate left
+            ctx.rotate(-0.5 * Math.PI);
+            ctx.translate(-width, 0);
+            break;
 
-            default:
-          }
+          default:
+        }
       },
       openUpload() {
         //
       },
       loadImage(file){
-        const ctx = this.$refs.resizedPreview.getContext('2d');
+        const ctx = this.$refs.originalCanvas.getContext('2d');
         let orientation;
 
 
-          //image = new Image();
+        //image = new Image();
 
         // this.offscreenImage.onerror = () => { N.wire.emit('notify', t('err_image_invalid')); };
 
         this.offscreenImage.onload =  () => {
-          this.$refs.resizedPreview.width  = this.offscreenImage.width;
-          this.$refs.resizedPreview.height = this.offscreenImage.height;
+          this.$refs.originalCanvas.width  = this.offscreenImage.width;
+          this.$refs.originalCanvas.height = this.offscreenImage.height;
 
-            this.orientImage(this.$refs.resizedPreview, ctx, this.imageOrientation);
+          this.orientImage(this.$refs.originalCanvas, ctx, this.uploadedImage.orientation);
 
-            let imageWidth = this.$refs.resizedPreview.width;
-            let imageHeight = this.$refs.resizedPreview.height;
+          let imageWidth = this.$refs.originalCanvas.width;
+          let imageHeight = this.$refs.originalCanvas.height;
 
-            ctx.drawImage(this.offscreenImage, 0, 0, this.offscreenImage.width, this.offscreenImage.height);
-          };
+          ///let canvasCropped = document.createElement('canvas');
 
-          let reader = new FileReader();
+          //canvasCropped.width  = 500;
+          //canvasCropped.height = 500;
 
-          reader.onloadend = e => {
-            this.imageOrientation = this.getOrientation(e.target.result);
-            this.offscreenImage.src = window.URL.createObjectURL(file);
-          };
+          //let ctxCropped = canvasCropped.getContext('2d');
 
-          reader.readAsArrayBuffer(file);
+          //console.log(this.pica);
+          ctx.drawImage(this.offscreenImage, 0, 0, this.offscreenImage.width, this.offscreenImage.height);
+
+          this.pica.resize(this.$refs.originalCanvas, this.$refs.resizedCanvas)
+            .then(() => this.pica.toBlob(this.$refs.resizedCanvas, 'image/jpeg', 90))
+            .then(function (blob) {
+              console.log(blob);
+            })
+            .catch((e) => {
+              console.log(e);
+              //N.wire.emit('notify', t('err_image_invalid'));
+              throw 'CANCELED';
+            });
+
+          //this.resizeImage();
+
+        };
+
+        let reader = new FileReader();
+
+        reader.onloadend = e => {
+          this.uploadedImage.orientation = getOrientation(e.target.result);
+          this.offscreenImage.src = window.URL.createObjectURL(file);
+        };
+
+        reader.readAsArrayBuffer(file);
 
       },
       updatePreview(e) {
@@ -201,11 +195,11 @@
         //reader.onload = (e) => {
         //  this.imagePreview = this.imageData = e.target.result;
 
-          //source.getContext('2d').drawImage(img, cropX, 0, width, img.height);
+        //source.getContext('2d').drawImage(img, cropX, 0, width, img.height);
 
 
-          //pica.resize(this.imagePreview, this.$refs.resizedPreview)
-          //  .then(result => console.log('resize done!'));
+        //pica.resize(this.imagePreview, this.$refs.resizedPreview)
+        //  .then(result => console.log('resize done!'));
         //};
 
         //reader.readAsDataURL(files[0]);
