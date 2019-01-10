@@ -1,27 +1,100 @@
 <template>
   <div id="app">
-    <ImageProvider/>
+    <header class="header">
+      <span class="title">Photo Editor</span>
+      <navbar :data="data" @change="change"></navbar>
+    </header>
+    <main class="main">
+      <editor v-if="data.loaded" ref="editor" :data="data"></editor>
+      <loader v-else ref="loader" :data="data"></loader>
+    </main>
   </div>
 </template>
 
 <script>
-import ImageProvider from './components/ImageProvider'
+  import Navbar from './components/Navbar'
+  import Loader from './components/Loader'
+  import Editor from './components/Editor'
 
 export default {
   name: 'App',
   components: {
-    ImageProvider
-  }
+    navbar: Navbar ,
+    loader: Loader,
+    editor: Editor
+  },
+  data() {
+    return {
+      data: {
+        cropped: false,
+        cropping: false,
+        loaded: false,
+        name: '',
+        previousUrl: '',
+        type: '',
+        url: '',
+      },
+    };
+  },
+  methods: {
+    change(action) {
+      const { editor } = this.$refs;
+      switch (action) {
+        case 'crop':
+          editor.crop();
+          break;
+        case 'clear':
+          editor.clear();
+          break;
+        case 'restore':
+          editor.restore();
+          break;
+        case 'remove':
+          editor.reset();
+          break;
+        default:
+      }
+    },
+  },
 }
 </script>
 
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+<style scoped>
+  .app {
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+  .header {
+    background-color: #666;
+    height: 3rem;
+    overflow: hidden;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    position: relative;
+    z-index: 1;
+  }
+  @media (min-width: 768px) {
+    .header {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+  .title {
+    color: #fff;
+    display: block;
+    float: left;
+    font-size: 1.125rem;
+    line-height: 3rem;
+  }
+  .main {
+    background-color: #333;
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 3rem;
+  }
 </style>
