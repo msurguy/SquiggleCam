@@ -1,13 +1,67 @@
 <template>
   <div id="app">
-    <header class="header">
-      <span class="title">Photo Editor</span>
-      <navbar :data="data" @change="change"></navbar>
-    </header>
-    <main class="main">
-      <editor v-if="data.loaded" ref="editor" :data="data"></editor>
-      <loader v-else ref="loader" :data="data"></loader>
-    </main>
+    <div class="wrapper">
+      <div class="container">
+        <aside id="panel">
+          <div class="header">
+            <button class="btn btn-primary btn-circle"><i class="fa fa-angle-left"></i></button>
+            <h2>SquiggleCam</h2>
+          </div>
+
+          <image-chooser @selected="onInputSelected"></image-chooser>
+
+          <div class="image-upload" v-if="this.inputType === 'upload'">
+            <loader v-if="!data.loaded" ref="loader" :data="data"></loader>
+          </div>
+
+          <div class="section-title">
+            Squiggle Controls:
+          </div>
+          <div class="slider">
+        <span class="label">
+          Frequency
+        </span>
+            <input type="range" min="1" max="200" value="60">
+            <div class="output">0</div>
+          </div>
+          <div class="slider">
+        <span class="label">
+          Frequency
+        </span>
+            <input type="range" min="1" max="200" value="60">
+            <div class="output">0</div>
+          </div>
+          <div class="slider">
+        <span class="label">
+          Frequency
+        </span>
+            <input type="range" min="1" max="200" value="60">
+            <div class="output">200</div>
+          </div>
+          <div class="section-title">
+            Download:
+          </div>
+          <div class="actions">
+            <button class="btn">
+              PNG
+            </button>
+            <button class="btn">
+              SVG
+            </button>
+            <button class="btn">
+              ZIP
+            </button>
+          </div>
+          <div class="panel-toggle">
+            <button id="panelToggler" class="btn"><span class="fa fa-chevron-left"></span></button>
+          </div>
+        </aside>
+        <main>
+          <editor v-if="data.loaded" ref="editor" :data="data"></editor>
+        </main>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -15,16 +69,20 @@
   import Navbar from './components/Navbar'
   import Loader from './components/Loader'
   import Editor from './components/Editor'
+  import ImageChooser from './components/ImageChooser'
 
 export default {
   name: 'App',
   components: {
     navbar: Navbar ,
     loader: Loader,
-    editor: Editor
+    editor: Editor,
+    imageChooser: ImageChooser,
   },
   data() {
     return {
+      inputType: "upload",
+
       data: {
         cropped: false,
         cropping: false,
@@ -55,19 +113,17 @@ export default {
         default:
       }
     },
+    onInputSelected(type) {
+      this.inputType = type;
+    }
   },
 }
 </script>
 
-<style scoped>
-  .app {
-    bottom: 0;
-    left: 0;
-    position: absolute;
-    top: 0;
-    right: 0;
-  }
-  .header {
+<style lang="scss">
+  @import '@/styles/index.scss';
+
+  .cropper-header {
     background-color: #666;
     height: 3rem;
     overflow: hidden;
@@ -77,7 +133,7 @@ export default {
     z-index: 1;
   }
   @media (min-width: 768px) {
-    .header {
+    .cropper-header {
       padding-left: 1.5rem;
       padding-right: 1.5rem;
     }
@@ -88,13 +144,15 @@ export default {
     float: left;
     font-size: 1.125rem;
     line-height: 3rem;
+
   }
-  .main {
-    background-color: #333;
-    bottom: 0;
-    left: 0;
-    position: absolute;
-    right: 0;
-    top: 3rem;
-  }
+
+  /*.main {*/
+    /*background-color: #2E2E2E;*/
+    /*bottom: 0;*/
+    /*left: 0;*/
+    /*position: absolute;*/
+    /*right: 0;*/
+    /*top: 3rem;*/
+  /*}*/
 </style>

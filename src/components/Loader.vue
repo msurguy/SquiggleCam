@@ -78,27 +78,29 @@
 
 <style scoped lang="scss">
   .loader {
-    display: table;
-    height: 100%;
-    overflow: hidden;
-    width: 100%;
-
-  & > p {
-      color: #999;
-      display: table-cell;
-      text-align: center;
-      vertical-align: middle;
-    }
-  }
+    border: 2px #CCC dashed;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
   .browse {
     color: #0074d9;
     cursor: pointer;
     margin-left: .25rem;
+  }
 
-  &:hover {
-     color: #08f;
-     text-decoration: underline;
-   }
+  .sr-only {
+    border: 0;
+    clip: rect(0, 0, 0, 0);
+    height: 1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+    z-index: -1;
+  }
+
   }
 </style>

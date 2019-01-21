@@ -3,7 +3,7 @@
 import 'normalize.css'
 import Vue from 'vue'
 import App from './App'
-import './styles/index.css'
+//import './styles/index.scss'
 import 'cropperjs/dist/cropper.css';
 
 Vue.config.productionTip = false
