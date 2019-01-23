@@ -36,8 +36,8 @@
 
             <webcam ref="webcam"
                     :device-id="webcam.deviceId"
-                    width="550"
-                    height="550"
+                    :width="webcam.width"
+                    :height="webcam.height"
                     @started="onStarted"
                     @stopped="onStopped"
                     @error="onError"
@@ -68,18 +68,35 @@
           </div>
           <div class="slider">
         <span class="label">
-          Frequency
+          Line Count
         </span>
             <input type="range" min="10" max="200" v-model="settings.lineCount">
             <div class="output">{{ settings.lineCount }}</div>
           </div>
           <div class="slider">
-        <span class="label">
-          Frequency
-        </span>
+            <span class="label">
+              Amplitude
+            </span>
             <input type="range" min="0.1" max="5" step="0.1" v-model="settings.amplitude">
             <div class="output">{{ settings.amplitude }}</div>
           </div>
+
+          <div class="slider">
+            <span class="label">
+              Smoothing
+            </span>
+            <input type="range" min="0" max="0.25" step="0.01" v-model="line.smoothing">
+            <div class="output">{{ line.smoothing}}</div>
+          </div>
+
+          <div class="slider">
+            <span class="label">
+              Flattening
+            </span>
+            <input type="range" min="0" max="1" step="0.01" v-model="line.flattening">
+            <div class="output">{{ line.flattening }}</div>
+          </div>
+
           <div class="section-title">
             Download:
           </div>
@@ -99,7 +116,12 @@
           </div>
         </aside>
         <main>
-          <img :src="webcam.img">
+          <!--<img :src="webcam.img">-->
+
+          <div class="svg-container" ref="container">
+            <svg-chart :lines="lines" :options="line" :svg="svg"></svg-chart>
+          </div>
+
           <editor v-if="data.loaded" ref="editor" :data="data"></editor>
         </main>
       </div>
@@ -114,18 +136,29 @@
   import Editor from './components/Editor'
   import ImageChooser from './components/ImageChooser'
   import WebCam from './components/WebCam'
+  import svgChart from './components/svgChart';
 
-export default {
+  export default {
   name: 'App',
   components: {
     cropActions: Navbar ,
     loader: Loader,
     editor: Editor,
     imageChooser: ImageChooser,
-    webcam: WebCam
+    webcam: WebCam,
+    svgChart: svgChart
   },
   data() {
     return {
+      line: {
+        smoothing: 0.15,
+        flattening: 0.5
+      },
+      lines: [],
+      svg: {
+        w: 500,
+        h: 500
+      },
       inputType: "upload",
       settings: {
         frequency: 50,
@@ -138,7 +171,9 @@ export default {
         deviceId: null,
         device: null,
         devices: [],
-        streaming: false
+        streaming: false,
+        width: 550,
+        height: 550
       },
       data: {
         cropped: false,
@@ -166,9 +201,111 @@ export default {
   },
 
   methods: {
+    processImage(data) {
+      this.$worker.run((data) => {
+        // Gather all necessary data from the main thread
+        let config = data.config;
+// context.getImageData(0, 0, config.WIDTH, config.HEIGHT);
+        let imagePixels = data.image;
+        const width = data.config.width;
+        const height = data.config.height;
+
+// Create some defaults for squiggle-point array
+        let squiggleData = [];
+        let r = 5;
+        let a = 0;
+        let b;
+        let z;
+        let currentCoordinates = []; // create empty array for storing x,y coordinate pairs
+        let currentVerticalPixelIndex = 0;
+        let currentHorizontalPixelIndex = 0;
+        let contrastFactor = (259 * (config.contrast + 255)) / (255 * (259 - config.contrast)); // This was established through experiments
+        let horizontalLineSpacing = Math.floor(height/config.lineCount); // Number of pixels to advance in vertical direction
+
+// Iterate line by line (top line to bottom line) in increments of horizontalLineSpacing
+        for (let y = 0; y < height; y+= horizontalLineSpacing) {
+          a = 0;
+          currentCoordinates = [];
+          currentCoordinates.push([0, y]); // Start the line
+
+          currentVerticalPixelIndex = y*width;  // Because Image Pixel array is of length width * height,
+                                                // starting pixel for each line will be this
+
+          // Loop through pixels from left to right within the current line, advancing by increments of config.SPACING
+          for (let x = 1;x < width; x += config.spacing ) {
+            currentHorizontalPixelIndex = x + currentVerticalPixelIndex; // Get array position of current pixel
+
+            // When there is contrast adjustment, the calculations of brightness values are a bit different
+            if (config.contrast !== 0) {
+              // Determine how bright a pixel is, from 0 to 255 by summing three channels (R,G,B) multiplied by some coefficients
+              b = (0.2125 * ((contrastFactor * (imagePixels.data[4 * currentHorizontalPixelIndex] - 128) + 128 )
+                + config.brightness)) + (0.7154 * ((contrastFactor * (imagePixels.data[4 * (currentHorizontalPixelIndex + 1)] - 128) + 128)
+                + config.brightness)) + (0.0721 * ((contrastFactor*(imagePixels.data[4*(currentHorizontalPixelIndex+2)]-128)+128) + config.brightness));
+            } else {
+              b = (0.2125 * (imagePixels.data[4*currentHorizontalPixelIndex] + config.brightness)) + (0.7154 * (imagePixels.data[4*(currentHorizontalPixelIndex + 1)]+ config.brightness)) + (0.0721 * (imagePixels.data[4*(currentHorizontalPixelIndex + 2)] + config.brightness));
+            }
+
+            b = Math.max(config.minBrightness,b);    // Set minimum line curvature to value set by the user
+            z = Math.max(config.maxBrightness-b,0);  // Set maximum line curvature to value set by the user
+
+            // The magic of the script, determines how high / low the squiggle goes
+            r = config.amplitude * z / config.lineCount;
+
+            a += z / config.frequency;
+            currentCoordinates.push([x,y + Math.sin(a)*r]);
+          }
+          squiggleData.push(currentCoordinates);
+        }
+
+        return squiggleData;
+      }, [data])
+        .then(result => {
+          this.lines = [];
+          let counter = 0;
+
+          //console.log(result);
+          result.forEach( line => {
+            this.lines.push({id: counter, values: line});
+            counter++;
+            //console.log(line);
+          })
+
+          // this.lines = [
+          //   {
+          //     id: 1,
+          //     values: [
+          //       [50, 100],
+          //       [90, 500],
+          //       [120, 10],
+          //       [150, 80],
+          //       [160, 10],
+          //       [500,500]
+          //     ]
+          //   }
+          // ]
+          //this.lines = result;
+        })
+        .catch(e => {
+          console.error(e)
+        })
+    },
     onCapture() {
       this.webcam.img = this.$refs.webcam.capture();
-      //console.log(this.webcam.img);
+      this.processImage({
+        config: {
+          width: this.webcam.width,
+          height: this.webcam.height,
+          amplitude: this.settings.amplitude,
+          frequency: this.settings.frequency,
+          lineCount: this.settings.lineCount,
+          brightness: 0,
+          contrast: 0,
+          minBrightness: 0,
+          maxBrightness: 255,
+          spacing: 2
+        },
+        image: this.$refs.webcam.getCanvasRaw()
+      });
     },
     onStarted(stream) {
       this.webcam.streaming = true;
@@ -217,7 +354,7 @@ export default {
     onInputSelected(type) {
       this.inputType = type;
     }
-  },
+  }
 }
 </script>
 

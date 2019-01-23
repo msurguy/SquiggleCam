@@ -3,10 +3,15 @@
 import 'normalize.css'
 import Vue from 'vue'
 import App from './App'
+import VueWorker from 'vue-worker';
+
 //import './styles/index.scss'
 import 'cropperjs/dist/cropper.css';
 
 Vue.config.productionTip = false
+
+Vue.use(VueWorker);
+
 
 /* eslint-disable no-new */
 new Vue({

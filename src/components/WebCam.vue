@@ -50,7 +50,13 @@
       }
     },
     mounted() {
+
       this.setupMedia();
+    },
+    beforeDestroy() {
+      //this.camerasListEmitted = false;
+      //this.cameras = [];
+      this.stop();
     },
     methods: {
       legacyGetUserMediaSupport() {
@@ -92,8 +98,8 @@
         navigator.mediaDevices
           .enumerateDevices()
           .then(deviceInfos => {
-            for (var i = 0; i !== deviceInfos.length; ++i) {
-              var deviceInfo = deviceInfos[i];
+            for (let i = 0; i !== deviceInfos.length; ++i) {
+              let deviceInfo = deviceInfos[i];
               if (deviceInfo.kind === "videoinput") {
                 this.cameras.push(deviceInfo);
               }
@@ -195,6 +201,10 @@
       },
       capture() {
         return this.getCanvas().toDataURL(this.screenshotFormat);
+      },
+      getCanvasRaw() {
+        //const { ctx, canvas } = this;
+        return this.ctx.getImageData(0,0,this.canvas.width, this.canvas.height);
       },
       getCanvas() {
         let video = this.$refs.video;
