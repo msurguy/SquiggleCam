@@ -164,8 +164,14 @@
        * test access
        */
       testMediaAccess() {
+
         navigator.mediaDevices
-          .getUserMedia({ video: true, audio: false})
+          .getUserMedia({ video: {
+              width: this.$props.width,
+              aspectRatio: {
+                exact: this.$props.width / this.$props.height
+              }
+            }, audio: false})
           .then(stream => this.loadCameras())
           .catch(error => this.$emit("error", error));
       },
@@ -175,7 +181,14 @@
       loadCamera(device) {
         navigator.mediaDevices
           .getUserMedia({
-            video: { deviceId: { exact: device } }
+            video: {
+              deviceId: { exact: device },
+              width: this.width,
+              aspectRatio: {
+                exact: this.width / this.height
+              }
+            },
+            audio: false
           })
           .then(stream => this.loadSrcStream(stream))
           .catch(error => this.$emit("error", error));
@@ -190,12 +203,15 @@
           canvas.height = video.videoHeight;
           canvas.width = video.videoWidth;
           this.canvas = canvas;
-
           this.ctx = canvas.getContext("2d");
+          this.ctx.translate(canvas.width, 0);
+          this.ctx.scale(-1, 1);
         }
 
         const { ctx, canvas } = this;
+
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
 
         return canvas;
       }

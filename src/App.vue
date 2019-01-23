@@ -36,8 +36,8 @@
 
             <webcam ref="webcam"
                     :device-id="webcam.deviceId"
-                    width="500"
-                    height="500"
+                    width="550"
+                    height="550"
                     @started="onStarted"
                     @stopped="onStopped"
                     @error="onError"
@@ -99,7 +99,7 @@
           </div>
         </aside>
         <main>
-
+          <img :src="webcam.img">
           <editor v-if="data.loaded" ref="editor" :data="data"></editor>
         </main>
       </div>
@@ -168,6 +168,7 @@ export default {
   methods: {
     onCapture() {
       this.webcam.img = this.$refs.webcam.capture();
+      //console.log(this.webcam.img);
     },
     onStarted(stream) {
       this.webcam.streaming = true;
