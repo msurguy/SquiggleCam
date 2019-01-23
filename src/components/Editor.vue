@@ -199,8 +199,14 @@
           dragMode: 'move',
           background: false,
           aspectRatio: 1,
-          viewMode: 1,
+          viewMode: 3,
           movable: false,
+          data: {
+            width: 500,
+            height: 500
+          },
+
+
 
           ready: () => {
             if (this.croppedData) {
@@ -215,14 +221,24 @@
               this.cropBoxData = null;
             }
             this.cropper.setDragMode('crop');
-
           },
 
           crop: ({ detail }) => {
-            if (detail.width > 0 && detail.height > 0 && !data.cropping) {
+            const width = detail.width;
+            const height = detail.height;
+            if (width < 500 || height < 500 && data.cropping) {
+              this.cropper.setData({
+                width: 500,
+                height: 500,
+              });
+            }
+
+            if (width > 0 && height > 0 && !data.cropping) {
               this.update({
                 cropping: true,
               });
+
+
             }
           },
         });
@@ -246,8 +262,19 @@
             cropped: true,
             cropping: false,
             previousUrl: data.url,
-            url: cropper.getCroppedCanvas(data.type === 'image/png' ? {} : {
-              fillColor: '#fff',
+            url: cropper.getCroppedCanvas(data.type === 'image/png' ? {imageSmoothingQuality: "high", width: 500,
+              height: 500,
+              minWidth: 500,
+              minHeight: 500,
+              maxWidth: 4096,
+              maxHeight: 4096 } : {
+              imageSmoothingQuality: "high",
+              fillColor: '#fff',  width: 500,
+              height: 500,
+              minWidth: 500,
+              minHeight: 500,
+              maxWidth: 4096,
+              maxHeight: 4096
             }).toDataURL(data.type),
           });
           this.stop();

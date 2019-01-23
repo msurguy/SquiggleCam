@@ -78,7 +78,7 @@
 
 <style scoped lang="scss">
   .loader {
-    border: 2px #CCC dashed;
+    border: 2px #666666 dashed;
     height: 200px;
     display: flex;
     align-items: center;
