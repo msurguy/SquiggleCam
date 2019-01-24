@@ -7,7 +7,7 @@
 
   export default {
     name: "svgChartLine",
-    props: ["d", "o", "svg"],
+    props: ["d", "o"],
     computed: {
       styles() {
         return {
