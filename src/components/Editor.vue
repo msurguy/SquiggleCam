@@ -32,6 +32,7 @@
         canvasData: null,
         cropBoxData: null,
         croppedData: null,
+        croppedImageCanvas: null,
         cropper: null,
       };
     },
@@ -248,6 +249,8 @@
         if (this.cropper) {
           this.cropper.destroy();
           this.cropper = null;
+          //this.croppedImageCanvas = null;
+          //this.
         }
       },
 
@@ -258,24 +261,26 @@
           this.croppedData = cropper.getData();
           this.canvasData = cropper.getCanvasData();
           this.cropBoxData = cropper.getCropBoxData();
+          const croppedCanvas = cropper.getCroppedCanvas(data.type === 'image/png' ? {imageSmoothingQuality: "high", width: 500,
+            height: 500,
+            minWidth: 500,
+            minHeight: 500,
+            maxWidth: 4096,
+            maxHeight: 4096 } : {
+            imageSmoothingQuality: "high",
+            fillColor: '#fff',  width: 500,
+            height: 500,
+            minWidth: 500,
+            minHeight: 500,
+            maxWidth: 4096,
+            maxHeight: 4096
+          });
           this.update({
             cropped: true,
             cropping: false,
             previousUrl: data.url,
-            url: cropper.getCroppedCanvas(data.type === 'image/png' ? {imageSmoothingQuality: "high", width: 500,
-              height: 500,
-              minWidth: 500,
-              minHeight: 500,
-              maxWidth: 4096,
-              maxHeight: 4096 } : {
-              imageSmoothingQuality: "high",
-              fillColor: '#fff',  width: 500,
-              height: 500,
-              minWidth: 500,
-              minHeight: 500,
-              maxWidth: 4096,
-              maxHeight: 4096
-            }).toDataURL(data.type),
+            croppedImageData: croppedCanvas,
+            url: croppedCanvas.toDataURL(data.type),
           });
           this.stop();
         }
@@ -310,6 +315,7 @@
           previousUrl: '',
           type: '',
           url: '',
+          croppedImageData: ''
         });
       },
 

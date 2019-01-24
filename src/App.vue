@@ -11,8 +11,8 @@
           <image-chooser @selected="onInputSelected"></image-chooser>
 
           <div class="image-upload" v-if="this.inputType === 'upload'">
-            <loader v-if="!data.loaded" ref="loader" :data="data"></loader>
-            <crop-actions v-if="data.loaded" :data="data" @change="change"></crop-actions>
+            <loader v-if="!cropper.loaded" ref="loader" :data="cropper"></loader>
+            <crop-actions v-if="cropper.loaded" :data="cropper" @change="change"></crop-actions>
           </div>
 
           <div class="image-webcam" v-if="this.inputType === 'webcam'">
@@ -36,8 +36,8 @@
 
             <webcam ref="webcam"
                     :device-id="webcam.deviceId"
-                    :width="webcam.width"
-                    :height="webcam.height"
+                    :width="settings.width"
+                    :height="settings.height"
                     @started="onStarted"
                     @stopped="onStopped"
                     @error="onError"
@@ -116,13 +116,11 @@
           </div>
         </aside>
         <main>
-          <img :src="webcam.img">
-
           <div class="svg-container" ref="container">
-            <svg-chart :lines="lines" :options="line" :svg="svg"></svg-chart>
+            <svg-chart :lines="lines" :options="line" :width="settings.width" :height="settings.height"></svg-chart>
           </div>
 
-          <editor v-if="data.loaded" ref="editor" :data="data"></editor>
+          <editor v-if="cropper.loaded" ref="editor" :data="cropper"></editor>
         </main>
       </div>
     </div>
@@ -155,10 +153,6 @@
         flattening: 0.5
       },
       lines: [],
-      svg: {
-        w: 500,
-        h: 500
-      },
       inputType: "upload",
       settings: {
         frequency: 50,
@@ -169,18 +163,19 @@
         minBrightness: 0,
         maxBrightness: 255,
         spacing: 2,
+        width: 500,
+        height: 500
       },
+      canvasData: null,
       webcam: {
         img: null,
         camera: null,
         deviceId: null,
         device: null,
         devices: [],
-        streaming: false,
-        width: 500,
-        height: 500
+        streaming: false
       },
-      data: {
+      cropper: {
         cropped: false,
         cropping: false,
         loaded: false,
@@ -188,9 +183,11 @@
         previousUrl: '',
         type: '',
         url: '',
+        croppedImageData: ''
       },
     };
   },
+
   watch: {
     'webcam.camera': function(id) {
       this.webcam.deviceId = id;
@@ -202,18 +199,27 @@
         this.webcam.camera = first.deviceId;
         this.webcam.deviceId = first.deviceId;
       }
+    },
+    'cropper.croppedImageData': function(){
+      const canvas = this.cropper.croppedImageData;
+      const ctx = canvas.getContext("2d");
+      this.canvasData = ctx.getImageData(0, 0, 500, 500);
+      return true;
+    },
+    'canvasData': function(){
+      this.processImage();
     }
   },
 
   methods: {
-    processImage(data) {
+    processImage() {
       this.$worker.run((data) => {
         // Gather all necessary data from the main thread
         let config = data.config;
 // context.getImageData(0, 0, config.WIDTH, config.HEIGHT);
         let imagePixels = data.image;
-        const width = data.config.width;
-        const height = data.config.height;
+        let width = config.width;
+        let height = config.height;
 
 // Create some defaults for squiggle-point array
         let squiggleData = [];
@@ -239,7 +245,9 @@
                                                 // starting pixel for each line will be this
 
           // Loop through pixels from left to right within the current line, advancing by increments of config.SPACING
+          console.log(config.spacing, width);
           for (let x = config.spacing; x < width; x += config.spacing ) {
+
             currentHorizontalPixelIndex = x + currentVerticalPixelIndex; // Get array position of current pixel
 
             // When there is contrast adjustment, the calculations of brightness values are a bit different
@@ -268,7 +276,12 @@
         }
 
         return squiggleData;
-      }, [data])
+      }, [{
+        config: {
+          ...this.settings
+        },
+        image: this.canvasData
+      }])
         .then(result => {
           this.lines = [];
 
@@ -282,21 +295,7 @@
     },
     onCapture() {
       this.webcam.img = this.$refs.webcam.capture();
-      this.processImage({
-        config: {
-          width: this.webcam.width,
-          height: this.webcam.height,
-          amplitude: this.settings.amplitude,
-          frequency: this.settings.frequency,
-          lineCount: this.settings.lineCount,
-          brightness: this.settings.brightness,
-          contrast: this.settings.contrast,
-          minBrightness: this.settings.minBrightness,
-          maxBrightness: this.settings.maxBrightness,
-          spacing: this.settings.spacing
-        },
-        image: this.$refs.webcam.getCanvasRaw()
-      });
+      this.canvasData = this.$refs.webcam.getCanvasRaw();
     },
     onStarted(stream) {
       this.webcam.streaming = true;
@@ -325,7 +324,7 @@
       //console.log("On Camera Change Event", deviceId);
     },
     change(action) {
-      const { editor } = this.$refs;
+      const editor = this.$refs.editor;
       switch (action) {
         case 'crop':
           editor.crop();
