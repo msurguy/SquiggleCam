@@ -128,12 +128,18 @@
         if ("srcObject" in this.$refs.video) {
           // new browsers api
           this.$refs.video.srcObject = stream;
+
+          //this.$refs.video.setAttribute('width', this.width);
+          //this.$refs.video.setAttribute('height', this.height);
         } else {
           // old broswers
           this.source = window.HTMLMediaElement.srcObject(stream);
         }
         // Emit video start/live event
         this.$refs.video.onloadedmetadata = () => {
+          this.width = 500;
+          this.height = 500;
+
           this.$emit("video-live", stream);
         };
 
@@ -210,8 +216,10 @@
         let video = this.$refs.video;
         if (!this.ctx) {
           let canvas = document.createElement("canvas");
-          canvas.height = video.videoHeight;
-          canvas.width = video.videoWidth;
+          //console.log(video.width);
+          //console.log(video.height);
+          canvas.height = video.height;
+          canvas.width = video.width;
           this.canvas = canvas;
           this.ctx = canvas.getContext("2d");
           this.ctx.translate(canvas.width, 0);
@@ -219,8 +227,9 @@
         }
 
         const { ctx, canvas } = this;
+        ctx.clearRect(0, 0, this.width, this.height);
 
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(video, 0, 0, this.width, this.height);
 
 
         return canvas;

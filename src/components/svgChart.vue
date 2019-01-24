@@ -1,7 +1,7 @@
 <template>
   <svg :view-box.camel="viewbox" :width="svg.w" :height="svg.h">
     <g>
-    <svg-chart-line :d="line" :o="options" :svg="svg" v-for="line in lines" :key="line.id"></svg-chart-line>
+    <svg-chart-line :d="line" :o="options" :svg="svg" v-for="(line, index) in lines" :key="index"></svg-chart-line>
     </g>
   </svg>
 </template>

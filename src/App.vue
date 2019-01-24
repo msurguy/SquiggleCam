@@ -116,7 +116,7 @@
           </div>
         </aside>
         <main>
-          <!--<img :src="webcam.img">-->
+          <img :src="webcam.img">
 
           <div class="svg-container" ref="container">
             <svg-chart :lines="lines" :options="line" :svg="svg"></svg-chart>
@@ -163,7 +163,12 @@
       settings: {
         frequency: 50,
         amplitude: 1.2,
-        lineCount: 50
+        lineCount: 12,
+        brightness: 0,
+        contrast: 0,
+        minBrightness: 0,
+        maxBrightness: 255,
+        spacing: 2,
       },
       webcam: {
         img: null,
@@ -172,8 +177,8 @@
         device: null,
         devices: [],
         streaming: false,
-        width: 550,
-        height: 550
+        width: 500,
+        height: 500
       },
       data: {
         cropped: false,
@@ -216,23 +221,25 @@
         let a = 0;
         let b;
         let z;
-        let currentCoordinates = []; // create empty array for storing x,y coordinate pairs
+        let currentLine = []; // create empty array for storing x,y coordinate pairs
         let currentVerticalPixelIndex = 0;
         let currentHorizontalPixelIndex = 0;
         let contrastFactor = (259 * (config.contrast + 255)) / (255 * (259 - config.contrast)); // This was established through experiments
         let horizontalLineSpacing = Math.floor(height/config.lineCount); // Number of pixels to advance in vertical direction
+        //console.log(horizontalLineSpacing);
 
 // Iterate line by line (top line to bottom line) in increments of horizontalLineSpacing
+        //let tmpCounter = 0;
         for (let y = 0; y < height; y+= horizontalLineSpacing) {
           a = 0;
-          currentCoordinates = [];
-          currentCoordinates.push([0, y]); // Start the line
+          currentLine = [];
+          currentLine.push([0, y]); // Start the line
 
           currentVerticalPixelIndex = y*width;  // Because Image Pixel array is of length width * height,
                                                 // starting pixel for each line will be this
 
           // Loop through pixels from left to right within the current line, advancing by increments of config.SPACING
-          for (let x = 1;x < width; x += config.spacing ) {
+          for (let x = config.spacing; x < width; x += config.spacing ) {
             currentHorizontalPixelIndex = x + currentVerticalPixelIndex; // Get array position of current pixel
 
             // When there is contrast adjustment, the calculations of brightness values are a bit different
@@ -252,38 +259,22 @@
             r = config.amplitude * z / config.lineCount;
 
             a += z / config.frequency;
-            currentCoordinates.push([x,y + Math.sin(a)*r]);
+            currentLine.push([x,y + Math.sin(a)*r]);
+            //currentLine.push([x,y + 10 * (tmpCounter%2 ? -1 : 1)]);
+            //tmpCounter++;
           }
-          squiggleData.push(currentCoordinates);
+          currentLine.push([config.width, y]);
+          squiggleData.push(currentLine);
         }
 
         return squiggleData;
       }, [data])
         .then(result => {
           this.lines = [];
-          let counter = 0;
 
-          //console.log(result);
           result.forEach( line => {
-            this.lines.push({id: counter, values: line});
-            counter++;
-            //console.log(line);
+            this.lines.push({values: line});
           })
-
-          // this.lines = [
-          //   {
-          //     id: 1,
-          //     values: [
-          //       [50, 100],
-          //       [90, 500],
-          //       [120, 10],
-          //       [150, 80],
-          //       [160, 10],
-          //       [500,500]
-          //     ]
-          //   }
-          // ]
-          //this.lines = result;
         })
         .catch(e => {
           console.error(e)
@@ -298,11 +289,11 @@
           amplitude: this.settings.amplitude,
           frequency: this.settings.frequency,
           lineCount: this.settings.lineCount,
-          brightness: 0,
-          contrast: 0,
-          minBrightness: 0,
-          maxBrightness: 255,
-          spacing: 2
+          brightness: this.settings.brightness,
+          contrast: this.settings.contrast,
+          minBrightness: this.settings.minBrightness,
+          maxBrightness: this.settings.maxBrightness,
+          spacing: this.settings.spacing
         },
         image: this.$refs.webcam.getCanvasRaw()
       });
