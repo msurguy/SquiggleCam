@@ -85,7 +85,7 @@
             <span class="label">
               Smoothing
             </span>
-            <input type="range" min="0" max="0.25" step="0.01" v-model="line.smoothing">
+            <input type="range" min="0" max="0.5" step="0.05" v-model="line.smoothing">
             <div class="output">{{ line.smoothing}}</div>
           </div>
 
@@ -116,15 +116,13 @@
           </div>
         </aside>
         <main>
-          <div class="svg-container" ref="container">
+          <div v-if="canvasData" class="svg-container" style="padding: 10px;" ref="container">
             <svg-chart :lines="lines" :options="line" :width="settings.width" :height="settings.height"></svg-chart>
           </div>
-
           <editor v-if="cropper.loaded" ref="editor" :data="cropper"></editor>
         </main>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -149,20 +147,20 @@
   data() {
     return {
       line: {
-        smoothing: 0.15,
+        smoothing: 0.25,
         flattening: 0.5
       },
       lines: [],
       inputType: "upload",
       settings: {
-        frequency: 50,
-        amplitude: 1.2,
-        lineCount: 12,
+        frequency: 150,
+        amplitude: 1,
+        lineCount: 54,
         brightness: 0,
         contrast: 0,
         minBrightness: 0,
         maxBrightness: 255,
-        spacing: 2,
+        spacing: 1,
         width: 500,
         height: 500
       },
@@ -205,6 +203,15 @@
       const ctx = canvas.getContext("2d");
       this.canvasData = ctx.getImageData(0, 0, 500, 500);
       return true;
+    },
+    'settings.frequency': function(){
+      this.processImage();
+    },
+    'settings.lineCount': function(){
+      this.processImage();
+    },
+    'settings.amplitude': function(){
+      this.processImage();
     },
     'canvasData': function(){
       this.processImage();
