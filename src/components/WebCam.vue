@@ -137,8 +137,8 @@
         }
         // Emit video start/live event
         this.$refs.video.onloadedmetadata = () => {
-          this.width = 500;
-          this.height = 500;
+          // this.width = 500;
+          // this.height = 500;
 
           this.$emit("video-live", stream);
         };
@@ -191,6 +191,7 @@
        * load the Camera passed as index!
        */
       loadCamera(device) {
+        console.log('loading camera, width', this.width);
         navigator.mediaDevices
           .getUserMedia({
             video: {

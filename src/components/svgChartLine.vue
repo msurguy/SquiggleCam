@@ -1,5 +1,5 @@
 <template>
-    <path :d="pathD"></path>
+    <path :d="pathD" style="stroke-width: 1.5px; fill: none; stroke: #000000;"></path>
 </template>
 
 <script>

@@ -86,6 +86,11 @@ html [type="button"] {
   box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
+.btn-block {
+  display: block;
+  width: 100%;
+}
+
 .btn-circle {
   width: 36px;
   height: 36px;

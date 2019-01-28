@@ -11,8 +11,8 @@
           <image-chooser @selected="onInputSelected"></image-chooser>
 
           <div class="image-upload" v-if="this.inputType === 'upload'">
-            <croppa v-model="myCroppa" :width="250" :height="250" :preventWhiteSpace="true" :quality="2"></croppa>
-            <button @click="uploadCroppedImage">Output JPEG</button>
+            <croppa v-model="myCroppa" :width="settings.width/2" :height="settings.height/2" :preventWhiteSpace="true" :quality="2"></croppa>
+            <button class="btn btn-primary btn-block" style="display:block;" @click="uploadCroppedImage">Use Image</button>
           </div>
 
           <div class="image-webcam" v-if="this.inputType === 'webcam'">
@@ -52,13 +52,44 @@
               <circle cx="24" cy="24" r="23" stroke="white" stroke-width="1" fill="#D41616" />
               </svg>
             </button>
-
-
           </div>
 
           <div class="section-title">
             Squiggle Controls:
           </div>
+
+          <div class="slider">
+        <span class="label">
+          Width
+        </span>
+            <input type="range" min="200" max="500" v-model="settings.width">
+            <div class="output">{{ settings.width }}</div>
+          </div>
+
+          <div class="slider">
+        <span class="label">
+          Height
+        </span>
+            <input type="range" min="200" max="500" v-model="settings.height">
+            <div class="output">{{ settings.height }}</div>
+          </div>
+
+          <div class="slider">
+        <span class="label">
+          Min brightness
+        </span>
+            <input type="range" min="0" max="255" v-model="settings.minBrightness">
+            <div class="output">{{ settings.minBrightness }}</div>
+          </div>
+
+          <div class="slider">
+        <span class="label">
+          Max brightness
+        </span>
+            <input type="range" min="0" max="255" v-model="settings.maxBrightness">
+            <div class="output">{{ settings.maxBrightness }}</div>
+          </div>
+
           <div class="slider">
         <span class="label">
           Frequency
@@ -101,14 +132,9 @@
             Download:
           </div>
           <div class="actions">
-            <button class="btn">
-              JPG
-            </button>
+
             <button class="btn" @click="downloadSVG">
               SVG
-            </button>
-            <button class="btn">
-              ZIP
             </button>
           </div>
 
@@ -124,9 +150,6 @@
 </template>
 
 <script>
-  // import Navbar from './components/Navbar'
-  // import Loader from './components/Loader'
-  // import Editor from './components/Editor'
   import ImageChooser from './components/ImageChooser'
   import WebCam from './components/WebCam'
   import svgChart from './components/svgChart';
@@ -134,9 +157,6 @@
   export default {
   name: 'App',
   components: {
-    //cropActions: Navbar ,
-    //loader: Loader,
-    //editor: Editor,
     imageChooser: ImageChooser,
     webcam: WebCam,
     svgChart: svgChart
@@ -172,16 +192,6 @@
         devices: [],
         streaming: false
       },
-      // cropper: {
-      //   cropped: false,
-      //   cropping: false,
-      //   loaded: false,
-      //   name: '',
-      //   previousUrl: '',
-      //   type: '',
-      //   url: '',
-      //   croppedImageData: ''
-      // },
     };
   },
 
@@ -197,12 +207,6 @@
         this.webcam.deviceId = first.deviceId;
       }
     },
-    // 'cropper.croppedImageData': function(){
-    //   const canvas = this.cropper.croppedImageData;
-    //   const ctx = canvas.getContext("2d");
-    //   this.canvasData = ctx.getImageData(0, 0, 500, 500);
-    //   return true;
-    // },
     'settings.frequency': function(){
       this.processImage();
     },
@@ -219,13 +223,27 @@
 
   methods: {
     downloadSVG(){
-      console.log(this.$refs.svgResult.$el.innerHTML);
+      const svgDoctype = '<?xml version="1.0" standalone="no"?>'
+        + '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">';
+
+      // serialize our SVG XML to a string.
+      const svgString = (new XMLSerializer()).serializeToString(this.$refs.svgResult.$el);
+      const blob = new Blob([svgDoctype + svgString], {type: 'image/svg+xml;charset=utf-8'});
+
+      /* This portion of script saves the file to local filesystem as a download */
+      const svgUrl = URL.createObjectURL(blob);
+      const downloadLink = document.createElement("a");
+      downloadLink.href = svgUrl;
+      downloadLink.download = "squiggleCam_" + Date.now() + ".svg";
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
     },
     uploadCroppedImage() {
       this.myCroppa.generateBlob((blob) => {
         let canvas = document.createElement("canvas");
-        canvas.width = 500;
-        canvas.height = 500;
+        canvas.width = this.settings.width;
+        canvas.height = this.settings.height;
         //   const ctx = canvas.getContext("2d");
         //   this.canvasData = ctx.getImageData(0, 0, 500, 500);
 
@@ -234,7 +252,7 @@
 
         img.onload = () => {
           ctx.drawImage(img, 0, 0)
-          this.canvasData = ctx.getImageData(0, 0, 500, 500);
+          this.canvasData = ctx.getImageData(0, 0, this.settings.width, this.settings.height);
         };
 
         img.src = URL.createObjectURL(blob);
@@ -246,8 +264,8 @@
         let config = data.config;
 // context.getImageData(0, 0, config.WIDTH, config.HEIGHT);
         let imagePixels = data.image;
-        let width = config.width;
-        let height = config.height;
+        let width = parseInt(config.width);
+        let height = parseInt(config.height);
 
 // Create some defaults for squiggle-point array
         let squiggleData = [];
@@ -259,7 +277,7 @@
         let currentVerticalPixelIndex = 0;
         let currentHorizontalPixelIndex = 0;
         let contrastFactor = (259 * (config.contrast + 255)) / (255 * (259 - config.contrast)); // This was established through experiments
-        let horizontalLineSpacing = Math.floor(height/config.lineCount); // Number of pixels to advance in vertical direction
+        let horizontalLineSpacing = Math.floor(height/parseInt(config.lineCount)); // Number of pixels to advance in vertical direction
         //console.log(horizontalLineSpacing);
 
 // Iterate line by line (top line to bottom line) in increments of horizontalLineSpacing
@@ -305,9 +323,7 @@
 
         return squiggleData;
       }, [{
-        config: {
-          ...this.settings
-        },
+        config: Object.assign({}, this.settings),
         image: this.canvasData
       }])
         .then(result => {
@@ -350,24 +366,6 @@
       this.webcam.deviceId = deviceId;
       this.webcam.camera = deviceId;
       //console.log("On Camera Change Event", deviceId);
-    },
-    change(action) {
-      const editor = this.$refs.editor;
-      switch (action) {
-        case 'crop':
-          editor.crop();
-          break;
-        case 'clear':
-          editor.clear();
-          break;
-        case 'restore':
-          editor.restore();
-          break;
-        case 'remove':
-          editor.reset();
-          break;
-        default:
-      }
     },
     onInputSelected(type) {
       this.inputType = type;
