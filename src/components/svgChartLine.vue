@@ -1,5 +1,5 @@
 <template>
-    <path :style="styles.path" :d="pathD"></path>
+    <path :d="pathD"></path>
 </template>
 
 <script>
@@ -9,15 +9,6 @@
     name: "svgChartLine",
     props: ["d", "o"],
     computed: {
-      styles() {
-        return {
-          path: {
-            fill: 'none',
-            stroke: "#000",
-            strokeWidth: 1
-          }
-        };
-      },
       pathD() {
         return this.pointsPositions.reduce((acc, e, i, a) => i === 0
           ? `M ${e[0]},${e[1]}`
@@ -45,20 +36,16 @@
         const flat = lib.map(Math.cos(o.angle) * this.o.flattening, 0, 1, 1, 0)
         const angle = o.angle * flat + (reverse ? Math.PI : 0);
         const length = o.length * this.o.smoothing;
-        const x = current[0] + Math.cos(angle) * length;
-        const y = current[1] + Math.sin(angle) * length;
+        const x = Math.round((current[0] + Math.cos(angle) * length) * 100) / 100 ;
+        const y =  Math.round((current[1] + Math.sin(angle) * length) * 100) / 100 ;
         return [x, y];
       },
       bezierCommand(point, i, a) {
         const cps = this.controlPoint(a[i - 1], a[i - 2], point);
         const cpe = this.controlPoint(point, a[i - 1], a[i + 1], true);
         //const close = i === a.length - 1 ? " z" : "";
-        return `C ${cps[0]},${cps[1]} ${cpe[0]},${cpe[1]} ${point[0]},${point[1]}`;
+        return `C ${cps[0]},${cps[1]} ${cpe[0]},${cpe[1]} ${Math.round(point[0] * 100) / 100},${Math.round(point[1]*100)/100}`;
       }
     }
   }
 </script>
-
-<style scoped>
-
-</style>

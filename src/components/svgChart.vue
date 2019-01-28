@@ -23,5 +23,9 @@
 </script>
 
 <style scoped>
-
+  path {
+    fill: none;
+    stroke: #0f0f0f;
+    stroke-width: 1.5px;
+  }
 </style>

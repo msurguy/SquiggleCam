@@ -344,25 +344,6 @@ input[type="range"]:focus::-ms-fill-upper {
   align-content: space-between;
 }
 
-.panel-toggle {
-  position: absolute;
-  right: -12px;
-  bottom: 50px;
-  z-index: 1;
-  //align-self: center;
-
-  .btn {
-    z-index: 100;
-    background-color: #000;
-    padding: 20px 0;
-}
-  .btn:hover {
-    color: #fff;
-    background-color: #0069d9;
-    border-color: #0062cc;
-}
-}
-
 .image-webcam {
   position: relative;
 

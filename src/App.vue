@@ -11,8 +11,8 @@
           <image-chooser @selected="onInputSelected"></image-chooser>
 
           <div class="image-upload" v-if="this.inputType === 'upload'">
-            <loader v-if="!cropper.loaded" ref="loader" :data="cropper"></loader>
-            <crop-actions v-if="cropper.loaded" :data="cropper" @change="change"></crop-actions>
+            <croppa v-model="myCroppa" :width="250" :height="250" :preventWhiteSpace="true" :quality="2"></croppa>
+            <button @click="uploadCroppedImage">Output JPEG</button>
           </div>
 
           <div class="image-webcam" v-if="this.inputType === 'webcam'">
@@ -102,24 +102,21 @@
           </div>
           <div class="actions">
             <button class="btn">
-              PNG
+              JPG
             </button>
-            <button class="btn">
+            <button class="btn" @click="downloadSVG">
               SVG
             </button>
             <button class="btn">
               ZIP
             </button>
           </div>
-          <div class="panel-toggle">
-            <button id="panelToggler" class="btn"><span class="fa fa-chevron-left"></span></button>
-          </div>
+
         </aside>
         <main>
           <div v-if="canvasData" class="svg-container" style="padding: 10px;" ref="container">
-            <svg-chart :lines="lines" :options="line" :width="settings.width" :height="settings.height"></svg-chart>
+            <svg-chart ref="svgResult" :lines="lines" :options="line" :width="settings.width" :height="settings.height"></svg-chart>
           </div>
-          <editor v-if="cropper.loaded" ref="editor" :data="cropper"></editor>
         </main>
       </div>
     </div>
@@ -127,9 +124,9 @@
 </template>
 
 <script>
-  import Navbar from './components/Navbar'
-  import Loader from './components/Loader'
-  import Editor from './components/Editor'
+  // import Navbar from './components/Navbar'
+  // import Loader from './components/Loader'
+  // import Editor from './components/Editor'
   import ImageChooser from './components/ImageChooser'
   import WebCam from './components/WebCam'
   import svgChart from './components/svgChart';
@@ -137,15 +134,17 @@
   export default {
   name: 'App',
   components: {
-    cropActions: Navbar ,
-    loader: Loader,
-    editor: Editor,
+    //cropActions: Navbar ,
+    //loader: Loader,
+    //editor: Editor,
     imageChooser: ImageChooser,
     webcam: WebCam,
     svgChart: svgChart
   },
   data() {
     return {
+      myCroppa: {},
+      dataUrl: '',
       line: {
         smoothing: 0.25,
         flattening: 0.5
@@ -173,16 +172,16 @@
         devices: [],
         streaming: false
       },
-      cropper: {
-        cropped: false,
-        cropping: false,
-        loaded: false,
-        name: '',
-        previousUrl: '',
-        type: '',
-        url: '',
-        croppedImageData: ''
-      },
+      // cropper: {
+      //   cropped: false,
+      //   cropping: false,
+      //   loaded: false,
+      //   name: '',
+      //   previousUrl: '',
+      //   type: '',
+      //   url: '',
+      //   croppedImageData: ''
+      // },
     };
   },
 
@@ -198,12 +197,12 @@
         this.webcam.deviceId = first.deviceId;
       }
     },
-    'cropper.croppedImageData': function(){
-      const canvas = this.cropper.croppedImageData;
-      const ctx = canvas.getContext("2d");
-      this.canvasData = ctx.getImageData(0, 0, 500, 500);
-      return true;
-    },
+    // 'cropper.croppedImageData': function(){
+    //   const canvas = this.cropper.croppedImageData;
+    //   const ctx = canvas.getContext("2d");
+    //   this.canvasData = ctx.getImageData(0, 0, 500, 500);
+    //   return true;
+    // },
     'settings.frequency': function(){
       this.processImage();
     },
@@ -219,6 +218,28 @@
   },
 
   methods: {
+    downloadSVG(){
+      console.log(this.$refs.svgResult.$el.innerHTML);
+    },
+    uploadCroppedImage() {
+      this.myCroppa.generateBlob((blob) => {
+        let canvas = document.createElement("canvas");
+        canvas.width = 500;
+        canvas.height = 500;
+        //   const ctx = canvas.getContext("2d");
+        //   this.canvasData = ctx.getImageData(0, 0, 500, 500);
+
+        const ctx = canvas.getContext('2d');
+        let img = new Image();
+
+        img.onload = () => {
+          ctx.drawImage(img, 0, 0)
+          this.canvasData = ctx.getImageData(0, 0, 500, 500);
+        };
+
+        img.src = URL.createObjectURL(blob);
+      }, 'image/jpeg', 1)
+    },
     processImage() {
       this.$worker.run((data) => {
         // Gather all necessary data from the main thread
@@ -252,7 +273,7 @@
                                                 // starting pixel for each line will be this
 
           // Loop through pixels from left to right within the current line, advancing by increments of config.SPACING
-          console.log(config.spacing, width);
+          //console.log(config.spacing, width);
           for (let x = config.spacing; x < width; x += config.spacing ) {
 
             currentHorizontalPixelIndex = x + currentVerticalPixelIndex; // Get array position of current pixel
@@ -358,21 +379,21 @@
 <style lang="scss">
   @import './styles/index.scss';
 
-  .cropper-header {
-    background-color: #666;
-    height: 3rem;
-    overflow: hidden;
-    padding-left: 1rem;
-    padding-right: 1rem;
-    position: relative;
-    z-index: 1;
-  }
-  @media (min-width: 768px) {
-    .cropper-header {
-      padding-left: 1.5rem;
-      padding-right: 1.5rem;
-    }
-  }
+  /*.cropper-header {*/
+    /*background-color: #666;*/
+    /*height: 3rem;*/
+    /*overflow: hidden;*/
+    /*padding-left: 1rem;*/
+    /*padding-right: 1rem;*/
+    /*position: relative;*/
+    /*z-index: 1;*/
+  /*}*/
+  /*@media (min-width: 768px) {*/
+    /*.cropper-header {*/
+      /*padding-left: 1.5rem;*/
+      /*padding-right: 1.5rem;*/
+    /*}*/
+  /*}*/
   .title {
     color: #fff;
     display: block;
