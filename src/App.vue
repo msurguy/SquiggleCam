@@ -19,7 +19,18 @@
                   <image-chooser @selected="onInputSelected"></image-chooser>
 
                   <div class="image-upload" v-if="this.inputType === 'upload'">
-                    <croppa v-model="cropper" :width="settings.width/2" :height="settings.height/2" :preventWhiteSpace="false" :quality="2"></croppa>
+                    <croppa
+                      v-model="cropper"
+                      :width="settings.width/2"
+                      :height="settings.height/2"
+                      :preventWhiteSpace="false"
+                      :quality="2"
+                      placeholder-color="#000"
+                      :remove-button-size="22"
+                      :placeholder-font-size="24"
+                      remove-button-color="black"
+                      canvas-color="#FFFFFF"
+                    ></croppa>
                     <button class="btn btn-primary btn-block" style="display:block;" @click="uploadCroppedImage">Use Image</button>
                   </div>
 
@@ -151,6 +162,14 @@
                   <input type="range" min="0.1" max="5" step="0.1" v-model="settings.amplitude">
                   <div class="output">{{ settings.amplitude }}</div>
                 </div>
+
+                <div class="slider">
+                  <span class="label">
+                    Sampling
+                  </span>
+                  <input type="range" min="0.5" max="3" step="0.2" v-model="settings.spacing">
+                  <div class="output">{{ settings.spacing }}</div>
+                </div>
               </div>
             </div>
 
@@ -160,7 +179,6 @@
             Download:
           </div>
           <div class="actions">
-
             <button class="btn btn-block" @click="downloadSVG">
               SVG
             </button>
@@ -168,8 +186,8 @@
 
         </aside>
         <main>
-          <div v-if="canvasData" class="svg-container" style="padding: 10px;" ref="container">
-            <svg-chart ref="svgResult" :lines="lines" :options="line" :width="settings.width" :height="settings.height"></svg-chart>
+          <div v-if="canvasData" class="svg-container" style="padding: 10px; overflow: visible" ref="container">
+            <svg-chart ref="svgResult" :lines="lines" :width="settings.width" :height="settings.height"></svg-chart>
           </div>
         </main>
       </div>
@@ -234,6 +252,9 @@
     'settings.frequency': function(){
       this.processImage();
     },
+    'settings.spacing': function(){
+      this.processImage();
+    },
     'settings.lineCount': function(){
       this.processImage();
     },
@@ -280,8 +301,6 @@
         let canvas = document.createElement("canvas");
         canvas.width = this.settings.width;
         canvas.height = this.settings.height;
-        //   const ctx = canvas.getContext("2d");
-        //   this.canvasData = ctx.getImageData(0, 0, 500, 500);
 
         const ctx = canvas.getContext('2d');
         let img = new Image();
@@ -336,7 +355,7 @@
           //console.log(config.spacing, width);
           for (let x = spacing; x < width; x += spacing ) {
 
-            currentHorizontalPixelIndex = x + currentVerticalPixelIndex; // Get array position of current pixel
+            currentHorizontalPixelIndex = Math.floor(x + currentVerticalPixelIndex); // Get array position of current pixel
 
             // When there is contrast adjustment, the calculations of brightness values are a bit different
             if (contrast !== 0) {
@@ -383,11 +402,9 @@
     },
     onStarted(stream) {
       this.webcam.streaming = true;
-      //console.log("On Started Event", stream);
     },
     onStopped(stream) {
       this.webcam.streaming = false;
-      //console.log("On Stopped Event", stream);
     },
     onStop() {
       this.$refs.webcam.stop();
