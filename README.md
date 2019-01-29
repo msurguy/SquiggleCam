@@ -2,13 +2,13 @@
 
 Web Based implementation of [SquiggleDraw algorithm](https://github.com/gwygonik/SquiggleDraw ), originally implemented by Gregg Wygonik.
 
-The online version of this project takes a picture from your webcam and turns it into plotter-drawable SVG file.
+The online version of this project takes a picture from your webcam and turns it into plotter-drawable, laser-engravable SVG file.
 
 Here's an example of output image generated with this tool:
 
 ![Image of SquiggleCam in use](https://raw.githubusercontent.com/msurguy/SquiggleCam/master/examples/description.jpg "Image of SquiggleCam output")
 
-And here's my project that uses this tool:
+And here's a video my plotter that uses this tool:
 
 [![Video of SquiggleCam in use](https://raw.githubusercontent.com/msurguy/SquiggleCam/master/examples/botomazov.jpg)](https://www.youtube.com/watch?v=abBnMcs58ds)
 
@@ -49,3 +49,15 @@ Pass the resulting array of coordinates to rendering application
 # Using the output images
 
 The output SVG file generated with this tool can be uploaded to SVG -> GCODE (or similar) converter in order to be plotted on a pen plotter or engraved on a laser cutter.
+
+# Roadmap and todo list
+- [ ] Ability to use image URL for input
+- [ ] Ability to save settings in local storage as presets (and reuse them later)
+- [ ] Ability to switch the squiggle mode (not just horizontal lines): spirals, vertical lines, loops, etc
+- [ ] Ability to go back to the previous images from your current "session"
+- [ ] Fix bug with the video size when the paper size is modified during video being on
+
+If you want to implement any of these or contribute - please create an issue and feel free to submit a PR, I would appreciate that.
+
+# License
+MIT license
