@@ -1,15 +1,14 @@
 <template>
-    <path :d="pathD" style="stroke-width: 1.5px; fill: none; stroke: #000000;"></path>
+    <path v-bind:style="{strokeWidth: stroke.width, fill: stroke.fill, stroke: stroke.color}" :d="pathD"></path>
 </template>
 
 <script>
   export default {
     name: "svgChartLine",
-    props: ["d"],
+    props: ["d", "stroke"],
     computed: {
       pathD() {
         let path = "";
-
         this.d.values.forEach((point, index) => {
           if (index === 0) {
             path += `M ${point[0]},${point[1]}`;
