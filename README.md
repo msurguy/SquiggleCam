@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Description
 
 Web Based implementation of [SquiggleDraw algorithm](https://github.com/gwygonik/SquiggleDraw ), originally implemented by Gregg Wygonik.
@@ -13,8 +12,6 @@ And here's my project that uses this tool:
 
 [![Video of SquiggleCam in use](https://raw.githubusercontent.com/msurguy/SquiggleCam/master/examples/botomazov.jpg)](https://www.youtube.com/watch?v=abBnMcs58ds)
 
-I'll update the code soon in order to be able to upload images as well as take webcam pictures.
-
 # Installation and running
 
 Clone or download this repo, then run this command to get all dependencies installed locally:
@@ -24,10 +21,8 @@ npm install
 
 Then, run this command to watch for changes and to launch the HTML page in the browser:
 ```
-npm run watch
+npm run dev
 ```
-
-The project uses [Laravel Mix](https://github.com/JeffreyWay/laravel-mix) for ES6 conversion, file watching, code compression and development process.
 
 # Algorithm
 
@@ -51,31 +46,6 @@ For y :=0 to image height step image height / LINE_COUNT do
 Pass the resulting array of coordinates to rendering application
 ```
 
-The rendering layer is based on [D3.js](https://d3js.org/) library which takes an array of points and creates SVG lines that connect those points.
-
 # Using the output images
 
 The output SVG file generated with this tool can be uploaded to SVG -> GCODE (or similar) converter in order to be plotted on a pen plotter or engraved on a laser cutter.
-=======
-# image-editor
-
-> Image editor
-
-## Build Setup
-
-``` bash
-# install dependencies
-npm install
-
-# serve with hot reload at localhost:8080
-npm run dev
-
-# build for production with minification
-npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
-```
-
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
->>>>>>> Initial commmit

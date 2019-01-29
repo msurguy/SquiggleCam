@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "description": "Turn Images into squiggles for CNC machining",
   "license": "MIT",
-  "author": "Maksim <msurguy@gmail.com>",
+  "author": "Maksim Surguy <msurguy@gmail.com>",
   "keywords": ["SquiggleDraw", "CNC", "SVG", "Laser Cutting"],
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
