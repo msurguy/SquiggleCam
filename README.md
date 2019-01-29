@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Description
 
 Web Based implementation of [SquiggleDraw algorithm](https://github.com/gwygonik/SquiggleDraw ), originally implemented by Gregg Wygonik.
@@ -55,3 +56,26 @@ The rendering layer is based on [D3.js](https://d3js.org/) library which takes a
 # Using the output images
 
 The output SVG file generated with this tool can be uploaded to SVG -> GCODE (or similar) converter in order to be plotted on a pen plotter or engraved on a laser cutter.
+=======
+# image-editor
+
+> Image editor
+
+## Build Setup
+
+``` bash
+# install dependencies
+npm install
+
+# serve with hot reload at localhost:8080
+npm run dev
+
+# build for production with minification
+npm run build
+
+# build for production and view the bundle analyzer report
+npm run build --report
+```
+
+For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+>>>>>>> Initial commmit
