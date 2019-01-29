@@ -201,8 +201,9 @@
 
           <div class="credits">
             <p>
-              Project by <a target="_blank" href="http://twitter.com/msurguy">@msurguy</a>
-              <br>Source on <span class="fa fa-github"></span><a href="http://github.com/msurguys/SquiggleCam">Github</a>
+              Project by <a target="_blank" href="http://twitter.com/msurguy">@msurguy</a> (<span class="fa fa-github"></span><a target="_blank" href="http://github.com/msurguy/SquiggleCam">Source</a>)
+              <br>Based upon
+              <a target="_blank" href="https://github.com/gwygonik/SquiggleDraw">SquiggleDraw</a>
             </p>
           </div>
 

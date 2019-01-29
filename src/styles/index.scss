@@ -375,6 +375,9 @@ input[type="range"]:focus::-ms-fill-upper {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  h2 {
+    margin-top: 5px;
+  }
 }
 
 .video-controls {
