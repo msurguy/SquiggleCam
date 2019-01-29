@@ -137,9 +137,6 @@
         }
         // Emit video start/live event
         this.$refs.video.onloadedmetadata = () => {
-          // this.width = 500;
-          // this.height = 500;
-
           this.$emit("video-live", stream);
         };
 
@@ -191,7 +188,6 @@
        * load the Camera passed as index!
        */
       loadCamera(device) {
-        console.log('loading camera, width', this.width);
         navigator.mediaDevices
           .getUserMedia({
             video: {
@@ -210,15 +206,12 @@
         return this.getCanvas().toDataURL(this.screenshotFormat);
       },
       getCanvasRaw() {
-        //const { ctx, canvas } = this;
         return this.ctx.getImageData(0,0,this.canvas.width, this.canvas.height);
       },
       getCanvas() {
         let video = this.$refs.video;
         if (!this.ctx) {
           let canvas = document.createElement("canvas");
-          //console.log(video.width);
-          //console.log(video.height);
           canvas.height = video.height;
           canvas.width = video.width;
           this.canvas = canvas;

@@ -201,7 +201,8 @@ input[type="range"]::-webkit-slider-runnable-track {
   width: 100%;
   height: 5px;
   cursor: pointer;
-  background-image: linear-gradient(-270deg, #fad961 0%, #f76b1c 100%);
+  background-color: #717171;
+//  background-image: linear-gradient(-270deg, #fad961 0%, #f76b1c 100%);
 //box-shadow: 0px 0px 0px #6f2200, 0px 0px 0px #892a00;
 //background: #f76b1c;
 //border-radius: 5px;
@@ -218,18 +219,20 @@ input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   margin-top: -7.5px;
 }
-input[type="range"]:focus::-webkit-slider-runnable-track {
+input[type="range"]:hover::-webkit-slider-runnable-track {
   //background: #f8813e;
+  background-image: linear-gradient(-270deg, #fad961 0%, #f76b1c 100%);
+}
+input[type="range"]:focus::-webkit-slider-runnable-track {
   background-image: linear-gradient(-270deg, #fad961 0%, #f76b1c 100%);
 }
 input[type="range"]::-moz-range-track {
   width: 100%;
   height: 5px;
   cursor: pointer;
-  //box-shadow: 0px 0px 0px #6f2200, 0px 0px 0px #892a00;
   background: #f76b1c;
+  background-image: linear-gradient(-270deg, #fad961 0%, #f76b1c 100%);
   border-radius: 5px;
-//border: 1px solid #18d501;
 }
 input[type="range"]::-moz-range-thumb {
   box-shadow: 1.6px 1.6px 2.5px #cccccc, 0px 0px 1.6px #d9d9d9;
@@ -250,15 +253,15 @@ input[type="range"]::-ms-track {
 }
 input[type="range"]::-ms-fill-lower {
   background: #e75908;
-  border: 0px solid #18d501;
+  border: none;
   border-radius: 2px;
-  box-shadow: 0px 0px 0px #6f2200, 0px 0px 0px #892a00;
+  //box-shadow: 0px 0px 0px #6f2200, 0px 0px 0px #892a00;
 }
 input[type="range"]::-ms-fill-upper {
   background: #f76b1c;
-  border: 0px solid #18d501;
+  border: none;
   border-radius: 2px;
-  box-shadow: 0px 0px 0px #6f2200, 0px 0px 0px #892a00;
+  //box-shadow: 0px 0px 0px #6f2200, 0px 0px 0px #892a00;
 }
 input[type="range"]::-ms-thumb {
   box-shadow: 1.6px 1.6px 2.5px #cccccc, 0px 0px 1.6px #d9d9d9;
@@ -268,7 +271,6 @@ input[type="range"]::-ms-thumb {
   border-radius: 10px;
   background: #298bff;
   cursor: pointer;
-  height: 5px;
 }
 input[type="range"]:focus::-ms-fill-lower {
   background: #f76b1c;
@@ -277,14 +279,14 @@ input[type="range"]:focus::-ms-fill-upper {
   background: #f8813e;
 }
 
+.image-inputs {
+  margin-bottom: 15px;
+}
+
 .actions {
   display: flex;
   justify-content: space-between;
-
-//  & > * {
-//  //flex: 1;
-//}
-
+  padding-bottom: 20px;
   .btn {
     background-color: $btn-bg;
     color: $btn-text-color;
@@ -292,34 +294,40 @@ input[type="range"]:focus::-ms-fill-upper {
 
     &:hover {
       background-color: #6b6b6b;
+    }
+
   }
-}
+
+  .btn-block{
+    width: 100%;
+    display: block;
+  }
 }
 
 .section-title {
-  margin-top: 25px;
+  margin-top: 15px;
   margin-bottom: 15px;
   text-transform: uppercase;
 }
 
 .slider {
   position: relative;
-  height: 65px;
   display: flex;
+  margin-bottom: 7px;
 
   .label {
     position: absolute;
-    top: 5px;
+    top: 8px;
     line-height: 18px;
-    right: 0px;
-    font-family: Monaco;
+    right: 0;
+    font-family: Monaco, monospace;
     font-size: 12px;
     color: #d2d2d2;
     text-align: right;
 }
 
   input[type="range"] {
-    margin-top: 18px;
+    margin-top: 35px;
 }
 
   .output {
@@ -333,7 +341,7 @@ input[type="range"]:focus::-ms-fill-upper {
     font-family: monaco, Consolas, Lucida Console, monospace;
     font-size: 14px;
     line-height: 20px;
-}
+  }
 }
 
 .header {
@@ -351,6 +359,7 @@ input[type="range"]:focus::-ms-fill-upper {
 
 .image-webcam {
   position: relative;
+  margin-bottom: 30px;
 
   .btn-record {
     position: absolute;
@@ -360,5 +369,58 @@ input[type="range"]:focus::-ms-fill-upper {
     left: 50%;
     transform: translate(-50%,27px);
 
+  }
+}
+
+.toggle {
+  display: none;
+}
+
+.option {
+  position: relative;
+  margin-bottom: 2px;
+}
+
+.title {
+  text-transform: uppercase;
+  text-align: left;
+  background-color: $btn-bg;
+  color: $btn-text-color;
+  padding: 10px;
+}
+
+.title,
+.content {
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  transition: all 0.3s;
+  display: block;
+}
+
+.title:before {
+  content: '';
+  border-style: solid;
+  border-width: 2px 2px 0 0;
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  width: 12px;
+  height: 12px;
+  transform: rotate(45deg);
+  transform-origin: 75% 20%;
+  transition: transform 0.3s;
+}
+
+.content {
+  max-height: 0;
+  overflow: hidden;
+}
+
+.toggle:checked {
+  & + .title + .content {
+    max-height: 500px;
+  }
+  & + .title:before {
+    transform: rotate(135deg) !important;
   }
 }
