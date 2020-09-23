@@ -42,8 +42,10 @@ module.exports = {
 
     // Paths
     assetsRoot: path.resolve(__dirname, '../docs'),
-    assetsSubDirectory: 'static',
-    assetsPublicPath: 'https://msurguy.github.io/SquiggleCam/',
+    //assetsSubDirectory: 'static',
+    //assetsPublicPath: 'https://msurguy.github.io/SquiggleCam/',
+    assetsSubDirectory: '', //modified by gsyan , put all files to docs folder
+    assetsPublicPath: '', //modified by gsyan , none URI , use relative path
 
     /**
      * Source Maps
