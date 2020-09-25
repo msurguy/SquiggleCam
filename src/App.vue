@@ -195,7 +195,7 @@
                   <span class="label">
                     {{$t('Amplitude')}}
                   </span>
-                  <input type="range" min="0.0" max="20" step="0.1" v-model="settings.amplitude">
+                  <input type="range" min="0.00" max="20" step="0.01" v-model="settings.amplitude">
                   <div class="output">{{ settings.amplitude }}</div>
                 </div>
 
@@ -382,9 +382,10 @@
 
         /* This portion of script saves the file to local filesystem as a download */
         const svgUrl = URL.createObjectURL(blob);
+		const settingsString = (this.settings.frequency + "-" + this.settings.lineCount + "-" + this.settings.amplitude + "-" + this.settings.spacing + "-" + this.settings.strokeWidth).replace(/\./g,"_"); //filename postfix with settings
         const downloadLink = document.createElement("a");
         downloadLink.href = svgUrl;
-        downloadLink.download = "squiggleCam_" + Date.now() + ".svg";
+        downloadLink.download = "squiggleCam_" + settingsString + "_" + Date.now() + ".svg";
         document.body.appendChild(downloadLink);
         downloadLink.click();
         document.body.removeChild(downloadLink);
@@ -529,22 +530,22 @@
 				if(isOdd) {
 					if(lineTotal>0 && connectEnds) {
 						previousLinePoints = squiggleData[squiggleData.length-1];
-						currentLine.push(previousLinePoints[previousLinePoints.length-1]);
+						currentLine.push(previousLinePoints[previousLinePoints.length-1]); //connect previous line
 					}
 					if(LinesOrientationH) {
-						currentLine.push([xLeft, y]); // Start the line	//modified by gsyan
+						currentLine.push([xLeft, y]); // Horizontal start the line //modified by gsyan
 					} else {
-						currentLine.push([y, xLeft]); // Start the line	//modified by gsyan
+						currentLine.push([y, xLeft]); // Vertical start the line //modified by gsyan
 					}
 				} else {
 					if(connectEnds) {
 					   previousLinePoints = squiggleData[squiggleData.length-1];
-					   currentLine.push(previousLinePoints[previousLinePoints.length-1]);
+					   currentLine.push(previousLinePoints[previousLinePoints.length-1]); //connect previous line
 					}
 					if(LinesOrientationH) {
-						currentLine.push([xRight, y]); // Start the line	//modified by gsyan
+						currentLine.push([xRight, y]); // Horizontal Start the line	//modified by gsyan
 					} else {
-						currentLine.push([y, xRight]); // Start the line	//modified by gsyan
+						currentLine.push([y, xRight]); // Vertical Start the line	//modified by gsyan
 					}
 				}
 				
@@ -554,14 +555,15 @@
 				//console.log(config.spacing, width);
 				//for (let x = spacing; x < width; x += spacing ) {
 				for (let xx = xLeft; xx <=xRight; xx += spacing ) {
+					
 					if(isOdd) {
-						x = xx;
+						x = xx;  //odd lines: x in ascending order
 						if(xx==xLeft) {	//the first point of line
 							//lastX = x; //initial lastX of a line
 							lastX = xLeft;
 						}
 					} else {
-						x = xRight-(xx-xLeft);
+						x = xRight-(xx-xLeft);  //even lines: x in descending order
 						if(xx==xLeft) {	//the first point of line
 							//lastX = x; //initial lastX of a line
 							lastX = xRight;
@@ -686,6 +688,16 @@
 				}
 			}
           }
+		  
+		  //when connectEnds enable , concat all lines vertex to one array
+		  if(connectEnds) {
+			let connectEndsData = [];
+			for(let i=0; i<squiggleData.length; i++) {
+				connectEndsData = connectEndsData.concat(squiggleData[i]);
+			}
+			squiggleData = [ connectEndsData ];
+		  }
+		  
           return squiggleData;
         }, [{
           config: Object.assign({}, this.settings),
@@ -732,8 +744,8 @@
         this.inputType = type;
       },
 	  onLocaleSelected(lang) {
-		console.log(lang);
-		console.log(this.i18n);
+		//console.log(lang);
+		//console.log(this.i18n);
 		//this.i18n.locale = lang;
 	  }
     }
