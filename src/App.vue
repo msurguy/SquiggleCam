@@ -62,7 +62,7 @@
                       :width="settings.width/2"
                       :height="settings.height/2"
                       :preventWhiteSpace="false"
-                      :quality="2"
+                      :quality="2*settings.imageScaleUp"
                       placeholder-color="#000"
                       :remove-button-size="22"
                       :placeholder-font-size="24"
@@ -176,14 +176,19 @@
 				  <button class="btn" v-bind:class="{ active: settings.LinesOrientationH === true }" @click="settings.LinesOrientationH = true">{{$t('Horizontal')}}</button>
 				  <button v-bind:class="{ active: settings.LinesOrientationH === false }" class="btn" @click="settings.LinesOrientationH = false">{{$t('Vertical')}}</button>
 				</div>
-							  
-                <div class="slider">
-                  <span class="label">
-                    {{$t('Frequency')}}
-                  </span>
-                  <input type="range" min="5" max="256" v-model="settings.frequency">
-                  <div class="output">{{ settings.frequency }}</div>
-                </div>
+
+				<div class="button-group stretch">
+				  <label>{{$t('DrawCurve')}}</label>
+				  <button v-bind:class="{ active: settings.drawCurve === false }" class="btn" @click="settings.drawCurve = false">{{$t("PolyLines")}}</button>
+				  <button class="btn" v-bind:class="{ active: settings.drawCurve === true }" @click="settings.drawCurve = true">{{$t("BezierCurves")}}</button>
+				</div>
+				
+				<div class="button-group stretch">
+				  <label>{{$t('Algorithm')}}</label>
+				  <button v-bind:class="{ active: settings.SquiggleDrawMode === false }" class="btn" @click="settings.SquiggleDrawMode = false">SquiggleCam</button>
+				  <button class="btn" v-bind:class="{ active: settings.SquiggleDrawMode === true }" @click="settings.SquiggleDrawMode = true">SquiggleDraw</button>
+				</div>
+				
                 <div class="slider">
                   <span class="label">
                     {{$t('LineCount')}}
@@ -191,6 +196,7 @@
                   <input type="range" min="10" max="200" v-model="settings.lineCount">
                   <div class="output">{{ settings.lineCount }}</div>
                 </div>
+							  
                 <div class="slider">
                   <span class="label">
                     {{$t('Amplitude')}}
@@ -201,10 +207,18 @@
 
                 <div class="slider">
                   <span class="label">
-                    {{$t('Sampling')}}
+                    {{$t('Frequency')}}
                   </span>
-                  <input type="range" min="0.5" max="3" step="0.1" v-model="settings.spacing">
-                  <div class="output">{{ settings.spacing }}</div>
+                  <input type="range" min="5" max="256" v-model="settings.frequency">
+                  <div class="output">{{ settings.frequency }}</div>
+                </div>
+				
+                <div class="slider">
+                  <span class="label">
+                    {{$t('ResolutionScale')}}
+                  </span>
+                  <input type="range" min="1" max="3" step="1" v-model="settings.imageScaleUp">
+                  <div class="output">{{ settings.imageScaleUp }}</div>
                 </div>
 
                 <div class="slider">
@@ -215,12 +229,14 @@
                   <div class="output">{{ settings.strokeWidth }}</div>
                 </div>
 
-				<div class="button-group stretch">
-				  <label>{{$t('Algorithm')}}</label>
-				  <button v-bind:class="{ active: settings.SquiggleDrawMode === false }" class="btn" @click="settings.SquiggleDrawMode = false">SquiggleCam</button>
-				  <button class="btn" v-bind:class="{ active: settings.SquiggleDrawMode === true }" @click="settings.SquiggleDrawMode = true">SquiggleDraw</button>
-				</div>
-				
+                <div class="slider">
+                  <span class="label">
+                    {{$t('Sampling')}}
+                  </span>
+                  <input type="range" min="0.5" max="3" step="0.1" v-model="settings.spacing">
+                  <div class="output">{{ settings.spacing }}</div>
+                </div>
+
               </div>
             </div>
           </div>
@@ -247,7 +263,7 @@
         </aside>
         <main>
           <div v-if="canvasData" class="svg-container" ref="container">
-            <svg-chart ref="svgResult" :black="settings.black" :lines="lines" :width="settings.width" :height="settings.height" :strokeWidth="settings.strokeWidth"></svg-chart>
+            <svg-chart ref="svgResult" :black="settings.black" :lines="lines" :width="settings.width" :height="settings.height" :strokeWidth="settings.strokeWidth" :imageScaleUp="settings.imageScaleUp" :drawCurve="settings.drawCurve" :offset="svgOffset"></svg-chart>
           </div>
         </main>
       </div>
@@ -281,7 +297,9 @@
 		  connectEnds: false,
 		  LinesOrientationH: true,
 		  SquiggleDrawMode: false,
-		  strokeWidth: 5,
+		  drawCurve: true,
+		  imageScaleUp: 1,
+		  strokeWidth: 2,
           frequency: 150,
           amplitude: 1,
           lineCount: 50,
@@ -343,7 +361,10 @@
       },
       'settings.black': function(){
         this.processImage();
-      },	  
+      },	  	  
+      'settings.imageScaleUp': function(){
+        this.processImage();
+      },	  	  
       'settings.strokeWidth': function(){
         this.processImage();
       },	  	  
@@ -369,7 +390,10 @@
       },
       heightInCM(){
         return Math.round(10*this.settings.height / 38)/10;
-      }
+      },
+	  svgOffset() {
+		return (this.settings.spacing*0.1 + Math.floor(this.settings.height / this.settings.lineCount)/3*2);
+	  }
     },
     methods: {
       downloadSVG(){
@@ -382,7 +406,7 @@
 
         /* This portion of script saves the file to local filesystem as a download */
         const svgUrl = URL.createObjectURL(blob);
-		const settingsString = (this.settings.frequency + "-" + this.settings.lineCount + "-" + this.settings.amplitude + "-" + this.settings.spacing + "-" + this.settings.strokeWidth).replace(/\./g,"_"); //filename postfix with settings
+		const settingsString = "SET-"+(this.settings.lineCount + "-" + this.settings.amplitude + "-" + this.settings.frequency + "-" + this.settings.imageScaleUp + "-" + this.settings.strokeWidth).replace(/\./g,"_"); //filename postfix with settings
         const downloadLink = document.createElement("a");
         downloadLink.href = svgUrl;
         downloadLink.download = "squiggleCam_" + settingsString + "_" + Date.now() + ".svg";
@@ -393,14 +417,14 @@
       uploadCroppedImage() {		
         this.cropper.generateBlob((blob) => {
           let canvas = document.createElement("canvas");
-          canvas.width = this.settings.width;
-          canvas.height = this.settings.height;
+          canvas.width = this.settings.width*this.settings.imageScaleUp;
+          canvas.height = this.settings.height*this.settings.imageScaleUp;
 
           const ctx = canvas.getContext('2d');
           let img = new Image();
           img.onload = () => {
             ctx.drawImage(img, 0, 0);
-            this.canvasData = ctx.getImageData(0, 0, this.settings.width, this.settings.height);
+            this.canvasData = ctx.getImageData(0, 0, this.settings.width*this.settings.imageScaleUp, this.settings.height*this.settings.imageScaleUp);
           };
 
           img.src = URL.createObjectURL(blob);
@@ -413,8 +437,8 @@
           let config = data.config;
 // context.getImageData(0, 0, config.WIDTH, config.HEIGHT);
           const imagePixels = data.image;
-          const width = parseInt(config.width);
-          const height = parseInt(config.height);
+          const width = parseInt(config.width)*config.imageScaleUp;
+          const height = parseInt(config.height)*config.imageScaleUp;
           const contrast = parseInt(config.contrast);
           const brightness = parseInt(config.brightness);
           const lineCount = parseInt(config.lineCount);
@@ -426,6 +450,7 @@
 		  //added by gsyan
 		  const transparent = config.transparent; 
 		  const connectEnds = config.connectEnds;
+		  const scaleFactor = 1/config.imageScaleUp;
 		  const strokeWidth = config.strokeWidth;
 		  const SquiggleDrawMode = config.SquiggleDrawMode;
 		  const xsmooth = config.frequency;
@@ -471,13 +496,23 @@
 		  //added by gsyan
 		  let minPhaseIncr = 10 * Math.PI* 2 / (squiggleWidth / spacing);
 		  let maxPhaseIncr =  Math.PI* 2 * spacing / strokeWidth;
-
+		  let finalRow = false;
+		  let finalStep = false;
+		  let xOffset = spacing*0.1+horizontalLineSpacing/3;
+		  let yOffset = spacing*0.1+horizontalLineSpacing/3;
+		  let leftEdgeFound;
+		  let rightEdgeFound; 
+		  
 // Iterate line by line (top line to bottom line) in increments of horizontalLineSpacing
           //let tmpCounter = 0;
           for (let y = 0; y < squiggleHeight; y+= horizontalLineSpacing) {
 			phase = 0.0;
 			lastPhase = 0;
 			lastAmpl = 0;
+			
+			if( y+horizontalLineSpacing >= squiggleHeight) {
+				finalRow = true;
+			}
 			
             a = 0;
             currentLine = [];
@@ -486,10 +521,12 @@
                                                   // starting pixel for each line will be this
 			//find the edge of line
 			xLeft = 0;
-			xRight = Math.floor((squiggleWidth-1-xLeft)/spacing)*spacing;			
+			xRight = Math.floor((squiggleWidth-1-xLeft)/spacing)*spacing;
 			if( transparent ) {
+				leftEdgeFound = false;
+				rightEdgeFound = false;
 				//find the left edge of x
-				//for (let x = 0; x < width; x += spacing ) {
+				//for (let x = 0; x < width; x += spacing ) {				
 				for (let x = 0; x < squiggleWidth; x++ ) {
 					if(LinesOrientationH) {
 						currentHorizontalPixelIndex = Math.floor(x + currentVerticalPixelIndex); // Get array position of current pixel
@@ -499,9 +536,11 @@
 					//alpha = imagePixels.data[4*currentHorizontalPixelIndex+3]; 
 					b = imagePixels.data[4*currentHorizontalPixelIndex]+imagePixels.data[4*currentHorizontalPixelIndex+1]+imagePixels.data[4*currentHorizontalPixelIndex+2];
 					if( b < 255*3 ) {
+						xLeft = x;
+						leftEdgeFound = true;
 						break;
 					}
-					xLeft = x;
+					//xLeft = x;
 				}
 				
 				//find the right edge of x
@@ -518,55 +557,57 @@
 					//alpha = imagePixels.data[4*currentHorizontalPixelIndex+3]; 
 					b = imagePixels.data[4*currentHorizontalPixelIndex]+imagePixels.data[4*currentHorizontalPixelIndex+1]+imagePixels.data[4*currentHorizontalPixelIndex+2];
 					if( b < 255*3 ) {
+						xRight = x;
+						rightEdgeFound = true;
 						break;
 					}
-					xRight = x;
+					//xRight = x;
 				}
+			} else {
+				leftEdgeFound = true;
+				rightEdgeFound = true;
 			}
 			
-            //currentLine.push([0, y]); // Start the line
-			if(xRight > xLeft) {
+			if(xRight > xLeft && leftEdgeFound && rightEdgeFound) {
 				isOdd = (lineTotal%2 == 0);
-				if(isOdd) {
-					if(lineTotal>0 && connectEnds) {
-						previousLinePoints = squiggleData[squiggleData.length-1];
-						currentLine.push(previousLinePoints[previousLinePoints.length-1]); //connect previous line
-					}
-					if(LinesOrientationH) {
-						currentLine.push([xLeft, y]); // Horizontal start the line //modified by gsyan
+				finalStep = false;
+								
+				//add start point of line
+				if(LinesOrientationH) {
+					if(isOdd) {
+						currentLine.push([(xOffset+xLeft)*scaleFactor, (yOffset+y)*scaleFactor]); // Horizontal start the line //modified by gsyan
 					} else {
-						currentLine.push([y, xLeft]); // Vertical start the line //modified by gsyan
+						currentLine.push([(xOffset+xRight)*scaleFactor, (yOffset+y)*scaleFactor]); // Horizontal Start the line	//modified by gsyan
 					}
 				} else {
-					if(connectEnds) {
-					   previousLinePoints = squiggleData[squiggleData.length-1];
-					   currentLine.push(previousLinePoints[previousLinePoints.length-1]); //connect previous line
-					}
-					if(LinesOrientationH) {
-						currentLine.push([xRight, y]); // Horizontal Start the line	//modified by gsyan
+					if(isOdd) {
+						currentLine.push([(yOffset+y)*scaleFactor, (xOffset+xLeft)*scaleFactor]); // Vertical start the line //modified by gsyan
 					} else {
-						currentLine.push([y, xRight]); // Vertical Start the line	//modified by gsyan
+						currentLine.push([(yOffset+y)*scaleFactor, (xOffset+xRight)*scaleFactor]); // Vertical Start the line	//modified by gsyan
 					}
 				}
 				
 				let isBeginDraw = true;
-				
+								
 				// Loop through pixels from left to right within the current line, advancing by increments of config.SPACING
 				//console.log(config.spacing, width);
 				//for (let x = spacing; x < width; x += spacing ) {
-				for (let xx = xLeft; xx <=xRight; xx += spacing ) {
+				for (let xx = xLeft+1; xx <xRight; xx += spacing ) {
+					if(xx+spacing >= xRight) {
+						finalStep = true;
+					}
 					
 					if(isOdd) {
 						x = xx;  //odd lines: x in ascending order
-						if(xx==xLeft) {	//the first point of line
+						if(xx==xLeft+1) {	//the first point of line
 							//lastX = x; //initial lastX of a line
-							lastX = xLeft;
+							lastX = xLeft+1;
 						}
 					} else {
 						x = xRight-(xx-xLeft);  //even lines: x in descending order
-						if(xx==xLeft) {	//the first point of line
+						if(xx==xLeft+1) {	//the first point of line
 							//lastX = x; //initial lastX of a line
-							lastX = xRight;
+							lastX = xRight+1;
 						}
 					}
 					
@@ -618,7 +659,7 @@
 
 						a += z / config.frequency;
 					  
-						if( SquiggleDrawMode ) {
+						if( SquiggleDrawMode) {
 							df = z/xsmooth;
 							if (df < minPhaseIncr)
 								df = minPhaseIncr;
@@ -634,7 +675,7 @@
 
 							deltaPhase = phase - lastPhase; // Change in phase since last *vertex*
 						  
-							if( deltaPhase > Math.PI*0.5 && (y+horizontalLineSpacing) < height ) {
+							if( !finalStep && deltaPhase > Math.PI*0.5 ) {
 								vertexCount = Math.floor( deltaPhase / Math.PI*0.5); //  Add this many vertices
 
 								integerPart = ((vertexCount * Math.PI*0.5) / deltaPhase);
@@ -651,39 +692,77 @@
 									lastAmpl = lastAmpl + amplPerVertex;
 									
 									if(LinesOrientationH) {
-										currentLine.push([lastX, (y+Math.sin(lastPhase)*lastAmpl)]);
+										currentLine.push([(lastX+xOffset)*scaleFactor, (yOffset+y+Math.sin(lastPhase)*lastAmpl)*scaleFactor]);
 									} else {
-										currentLine.push([(y+Math.sin(lastPhase)*lastAmpl), lastX]);
+										currentLine.push([(yOffset+y+Math.sin(lastPhase)*lastAmpl)*scaleFactor, (lastX+xOffset)*scaleFactor]);
 									}
 								}
 							}
 						} else {
 							if(LinesOrientationH) {
-								currentLine.push([x,y + Math.sin(a)*r]);
+								currentLine.push([(x + xOffset)*scaleFactor, (yOffset+y+Math.sin(a)*r)*scaleFactor]);
 							} else {
-								currentLine.push([y + Math.sin(a)*r, x]);
+								currentLine.push([(yOffset+y +Math.sin(a)*r)*scaleFactor, (x+xOffset)*scaleFactor]);
 							}						
 						}
 					}
 				} 
-				//currentLine.push([config.width, y]);
 				
 				lineTotal = lineTotal+1;
-				//add the last point
-				if(LinesOrientationH) {
-					if(isOdd) {
-					   currentLine.push([xRight, y]);
-					} else {
-					   currentLine.push([xLeft, y]);
-					}
-				} else {
-					if(isOdd) {
-					   currentLine.push([y, xRight]);
-					} else {
-					   currentLine.push([y, xLeft]);
-					}
-				}
+				
 				if(currentLine.length > 0) {
+					//
+					// add the last point and extra point
+					//
+					if(LinesOrientationH) {
+						//add last point
+						if(isOdd) {
+						   currentLine.push([(xRight+xOffset)*scaleFactor, (y+yOffset)*scaleFactor]);
+						} else {
+						   currentLine.push([(xLeft+xOffset)*scaleFactor, (y+yOffset)*scaleFactor]);
+						}
+						//add extra point 
+						if(!connectEnds || finalRow) {
+							if(isOdd) {
+							   currentLine.push([(xRight+spacing*0.1)* scaleFactor + xOffset, y* scaleFactor + yOffset]);
+							} else {
+							   currentLine.push([(xLeft-spacing*0.1)* scaleFactor + xOffset, y* scaleFactor + yOffset]);
+							}
+						}
+					} else {
+						//add last point
+						if(isOdd) {
+						   currentLine.push([(y+yOffset)*scaleFactor, (xRight+xOffset)*scaleFactor]);
+						} else {
+						   currentLine.push([(y+yOffset)*scaleFactor, (xLeft+xOffset)*scaleFactor]);
+						}
+						//add extra point 
+						if(!connectEnds || finalRow) {
+							if(isOdd) {
+							   currentLine.push([(y+yOffset)*scaleFactor, (xOffset+xRight+spacing*0.1)*scaleFactor]);
+							} else {
+							   currentLine.push([(y+yOffset)*scaleFactor, (xOffset+xLeft-spacing*0.1)*scaleFactor]);
+							}
+						}					
+					}
+				
+					//Add curvy end connectors
+					if(connectEnds && !finalRow) {
+						if(LinesOrientationH) {
+							if(isOdd) {
+							   currentLine.push([(xOffset+xRight+spacing*0.1+horizontalLineSpacing/3)*scaleFactor, (yOffset+y+horizontalLineSpacing/2)*scaleFactor]);
+							} else {
+							   currentLine.push([(xOffset+xLeft-spacing*0.1-horizontalLineSpacing/3)*scaleFactor, (yOffset+y+horizontalLineSpacing/2)*scaleFactor]);
+							}					
+						} else {
+							if(isOdd) {
+							   currentLine.push([(yOffset+y+horizontalLineSpacing/2)*scaleFactor, (xOffset+xRight+spacing*0.1+horizontalLineSpacing/3)*scaleFactor]);
+							} else {
+							   currentLine.push([(yOffset+y+horizontalLineSpacing/2)*scaleFactor, (xOffset+xLeft-spacing*0.1-horizontalLineSpacing/3)*scaleFactor]);
+							}					
+						}
+					}
+				
 					squiggleData.push(currentLine);
 				}
 			}

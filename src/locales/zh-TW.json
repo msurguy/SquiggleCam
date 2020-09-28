@@ -30,10 +30,15 @@
   "Disable" : "關閉",
   "Enable" : "啟用",
   "Tranparent" : "去背功能:",
-  "Algorithm" : "套用演算法:",
+  "Algorithm" : "演算法:",
   "LinesOrientationH" : "線條方向:",
   "Vertical" : "豎線",
   "Horizontal" : "橫線",  
+  "DrawCurve" : "畫線方式:",
+  "BezierCurves" : "曲線",
+  "PolyLines" : "折線",  
+  "ResolutionScale" : "放大倍數",
+  
   
  "Download" : "檔案下載:"
 
