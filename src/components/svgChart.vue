@@ -1,7 +1,7 @@
 <template>
-  <svg :style="{ background: background}" xmlns="http://www.w3.org/2000/svg" :view-box.camel="viewbox" :width="width" :height="height">
+  <svg :style="{ background: background}" xmlns="http://www.w3.org/2000/svg" :view-box.camel="viewbox" :width="width+offset" :height="height+offset">
     <g>
-    <svg-chart-line :d="line" :stroke="stroke" v-for="(line, index) in lines" :key="index"></svg-chart-line>
+    <svg-chart-line :d="line" :stroke="stroke"  :drawCurve="drawCurve" v-for="(line, index) in lines" :key="index"></svg-chart-line>
     </g>
   </svg>
 </template>
@@ -13,10 +13,11 @@
     components: {
       svgChartLine
     },
-    props: ["lines", "black","width","height"],
+    props: ["lines", "black","width","height","strokeWidth","imageScaleUp","drawCurve","offset"],
     computed: {
       viewbox() {
-        return `0 0 ${this.width} ${this.height}`;
+        //return `0 0 ${this.width} ${this.height}`;
+		return `0 0 ${this.width+this.offset} ${this.height+this.offset}`;
       },
       background(){
         return this.black ? '#000000' : '#FFFFFF'
@@ -25,7 +26,7 @@
         return {
           color: this.black ? '#FFFFFF' : '#000000',
           fill: 'none',
-          width: '2px'
+          width: (this.strokeWidth/this.imageScaleUp)+'px'
         }
       }
     }
