@@ -29,7 +29,7 @@
   "ConnectEnds" : "端點連線:",
   "Disable" : "關閉",
   "Enable" : "啟用",
-  "Tranparent" : "去背功能:",
+  "Transparent" : "去背功能:",
   "Algorithm" : "演算法:",
   "LinesOrientationH" : "線條方向:",
   "Vertical" : "豎線",
@@ -37,7 +37,7 @@
   "DrawCurve" : "畫線方式:",
   "BezierCurves" : "曲線",
   "PolyLines" : "折線",  
-  "ResolutionScale" : "放大倍數",
+  "ResolutionScale" : "解析度倍率",
   
   
  "Download" : "檔案下載:"

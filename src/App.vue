@@ -166,7 +166,7 @@
 				</div>
 				
 				<div class="button-group stretch">
-				  <label>{{$t('Tranparent')}}</label>
+				  <label>{{$t('Transparent')}}</label>
 				  <button v-bind:class="{ active: settings.transparent === false }" class="btn" @click="settings.transparent = false">{{$t('Disable')}}</button>
 				  <button class="btn" v-bind:class="{ active: settings.transparent === true }" @click="settings.transparent = true">{{$t('Enable')}}</button>
 				</div>
@@ -643,7 +643,14 @@
 								+ brightness)) + (0.7154 * ((contrastFactor * (imagePixels.data[4 * (currentHorizontalPixelIndex + 1)] - 128) + 128)
 								+ brightness)) + (0.0721 * ((contrastFactor*(imagePixels.data[4*(currentHorizontalPixelIndex+2)]-128)+128) + brightness));
 						} else {
-							b = (0.2125 * (imagePixels.data[4*currentHorizontalPixelIndex] + brightness)) + (0.7154 * (imagePixels.data[4*(currentHorizontalPixelIndex + 1)]+ brightness)) + (0.0721 * (imagePixels.data[4*(currentHorizontalPixelIndex + 2)] + brightness));
+							//b = (0.2125 * (imagePixels.data[4*currentHorizontalPixelIndex] + brightness)) + (0.7154 * (imagePixels.data[4*(currentHorizontalPixelIndex + 1)]+ brightness)) + (0.0721 * (imagePixels.data[4*(currentHorizontalPixelIndex + 2)] + brightness));
+							//0.2125 0.7154 0.0721
+							//0.30*R + 0.59*G + 0.11*B
+							//0.34  0.5 0.16
+							let scaleR = 0.2125;
+							let scaleG = 0.7154;
+							let scaleB = 0.0721;
+							b = Math.floor( (scaleR * (imagePixels.data[4*currentHorizontalPixelIndex] + brightness)) + (scaleG * (imagePixels.data[4*(currentHorizontalPixelIndex + 1)]+ brightness)) + (scaleB * (imagePixels.data[4*(currentHorizontalPixelIndex + 2)] + brightness)) );
 						}
 
 						if (black) {
