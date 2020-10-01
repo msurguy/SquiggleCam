@@ -233,7 +233,7 @@
                   <span class="label">
                     {{$t('Sampling')}}
                   </span>
-                  <input type="range" min="0.5" max="3" step="0.1" v-model="settings.spacing">
+                  <input type="range" :min="spacingMin" max="3" :step="spacingStep" v-model="settings.spacing">
                   <div class="output">{{ settings.spacing }}</div>
                 </div>
 
@@ -393,6 +393,12 @@
       },
 	  svgOffset() {
 		return (this.settings.spacing*0.1 + Math.floor(this.settings.height / this.settings.lineCount)/3*2);
+	  },
+	  spacingMin() {	//dynamic change settings.spacing range min with line orientation 
+		return (this.settings.LinesOrientationH ? 0.5 : 1);
+	  },
+	  spacingStep() {	//dynamic change settings.spacing step with line orientation 
+		return (this.settings.LinesOrientationH ? 0.1 : 1);
 	  }
     },
     methods: {
@@ -444,7 +450,7 @@
           const lineCount = parseInt(config.lineCount);
           const minBrightness = parseInt(config.minBrightness);
           const maxBrightness = parseInt(config.maxBrightness);
-          const spacing = parseFloat(config.spacing);
+          const spacing = (config.LinesOrientationH ? parseFloat(config.spacing) : Math.round(parseFloat(config.spacing)));
           const black = config.black;
 		  
 		  //added by gsyan
