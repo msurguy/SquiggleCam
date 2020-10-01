@@ -519,7 +519,7 @@
 			if( y+horizontalLineSpacing >= squiggleHeight) {
 				finalRow = true;
 			}
-			
+
             a = 0;
             currentLine = [];
 			
@@ -720,7 +720,7 @@
 						}
 					}
 				} 
-				
+
 				lineTotal = lineTotal+1;
 				
 				if(currentLine.length > 0) {
@@ -728,28 +728,31 @@
 					// add the last point and extra point
 					//
 					if(LinesOrientationH) {
-						//add last point
 						if(isOdd) {
 						   currentLine.push([(xRight+xOffset)*scaleFactor, (y+yOffset)*scaleFactor]);
 						} else {
 						   currentLine.push([(xLeft+xOffset)*scaleFactor, (y+yOffset)*scaleFactor]);
 						}
-						//add extra point 
-						if(!connectEnds || finalRow) {
-							if(isOdd) {
-							   currentLine.push([(xRight+spacing*0.1)* scaleFactor + xOffset, y* scaleFactor + yOffset]);
-							} else {
-							   currentLine.push([(xLeft-spacing*0.1)* scaleFactor + xOffset, y* scaleFactor + yOffset]);
-							}
-						}
 					} else {
-						//add last point
 						if(isOdd) {
 						   currentLine.push([(y+yOffset)*scaleFactor, (xRight+xOffset)*scaleFactor]);
 						} else {
 						   currentLine.push([(y+yOffset)*scaleFactor, (xLeft+xOffset)*scaleFactor]);
 						}
-						//add extra point 
+					}
+					
+					//
+					// add extra point 
+					//
+					if(LinesOrientationH) {
+						if(!connectEnds || finalRow) {
+							if(isOdd) {
+							   currentLine.push([(xRight+spacing*0.1 + xOffset)* scaleFactor, (y + yOffset)*scaleFactor]);
+							} else {
+							   currentLine.push([(xLeft-spacing*0.1 + xOffset)* scaleFactor, (y + yOffset)*scaleFactor]);
+							}
+						}
+					} else {
 						if(!connectEnds || finalRow) {
 							if(isOdd) {
 							   currentLine.push([(y+yOffset)*scaleFactor, (xOffset+xRight+spacing*0.1)*scaleFactor]);
