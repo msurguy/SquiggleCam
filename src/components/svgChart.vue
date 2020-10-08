@@ -17,7 +17,7 @@
     computed: {
       viewbox() {
         //return `0 0 ${this.width} ${this.height}`;
-		return `0 0 ${this.width+this.offset} ${this.height+this.offset}`;
+		return `0 0 ${parseInt(this.width)+parseFloat(this.offset)} ${parseInt(this.height)+parseFloat(this.offset)}`;
       },
       background(){
         return this.black ? '#000000' : '#FFFFFF'
