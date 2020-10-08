@@ -69,6 +69,11 @@
                       remove-button-color="black"
                       canvas-color="#FFFFFF"
                     ></croppa>
+					<div class="button-group stretch">
+						<label>{{$t('Rotate')}}</label>
+						<button class="btn active" @click="cropper.rotate()">+90</button>
+						<button class="btn" @click="cropper.rotate(-1)">-90</button>
+					</div>
                     <button class="btn btn-primary btn-block" style="display:block;" @click="uploadCroppedImage">{{$t('UseImage')}}</button>
                   </div>
 
@@ -415,7 +420,7 @@
 		const settingsString = "SET-"+(this.settings.lineCount + "-" + this.settings.amplitude + "-" + this.settings.frequency + "-" + this.settings.imageScaleUp + "-" + this.settings.strokeWidth).replace(/\./g,"_"); //filename postfix with settings
         const downloadLink = document.createElement("a");
         downloadLink.href = svgUrl;
-        downloadLink.download = "squiggleCam_" + settingsString + "_" + Date.now() + ".svg";
+        downloadLink.download = "squiggleCam_"  + Date.now() + "_" + settingsString + ".svg";
         document.body.appendChild(downloadLink);
         downloadLink.click();
         document.body.removeChild(downloadLink);
