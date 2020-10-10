@@ -464,7 +464,7 @@
 		  const scaleFactor = 1/config.imageScaleUp;
 		  const strokeWidth = config.strokeWidth;
 		  const SquiggleDrawMode = config.SquiggleDrawMode;
-		  const xsmooth = config.frequency;
+		  const xsmooth = 257.0 - config.frequency;
 		  const LinesOrientationH = config.LinesOrientationH;
 		  
 // Create some defaults for squiggle-point array

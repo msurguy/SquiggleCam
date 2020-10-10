@@ -1,5 +1,5 @@
 <template>
-  <svg :style="{ background: background}" xmlns="http://www.w3.org/2000/svg" :view-box.camel="viewbox" :width="width+offset" :height="height+offset">
+  <svg :style="{ background: background}" xmlns="http://www.w3.org/2000/svg" :view-box.camel="viewbox" :width="parseInt(width)+parseInt(offset)" :height="parseInt(height)+parseInt(offset)">
     <g>
     <svg-chart-line :d="line" :stroke="stroke"  :drawCurve="drawCurve" v-for="(line, index) in lines" :key="index"></svg-chart-line>
     </g>
@@ -26,7 +26,7 @@
         return {
           color: this.black ? '#FFFFFF' : '#000000',
           fill: 'none',
-          width: (this.strokeWidth/this.imageScaleUp)+'px'
+          width: (parseInt(this.strokeWidth)/parseInt(this.imageScaleUp))+'px'
         }
       }
     }
