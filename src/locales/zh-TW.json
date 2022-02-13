@@ -1,0 +1,46 @@
+{
+ "PaperSettings" : "紙張設定",
+  "color" : "顏色:",
+  "white" : "白色",
+  "black" : "黑色",
+  "width" : "寬度",
+  "height" : "高度",
+  
+ "ImageSelection" : "選取圖片",
+  "Input" : "輸入來源:",
+  "File" : "檔案",
+  "Webcam" : "Webcam",  
+  "UseImage" : "套用此圖片",
+  "SelectDevice" : "- 選取鏡頭: -",
+  "Start" : "開始拍攝",
+  "Rotate" : "旋轉角度:",
+
+ "ImageAdjustments" : "調整圖片",
+  "Brightness" : "亮度",
+  "Contrast" : "對比",
+  "MinBrightness" : "最暗",
+  "MaxBrightness" : "最亮",
+ 
+ "SquiggleSettings" : "設定 Squiggle",
+  "Frequency" : "頻率",
+  "LineCount" : "線條總數",
+  "Amplitude" : "振幅",
+  "Sampling" : "取樣間隔",
+  "LineWidth" : "線寬",
+  "ConnectEnds" : "端點連線:",
+  "Disable" : "關閉",
+  "Enable" : "啟用",
+  "Transparent" : "去背功能:",
+  "Algorithm" : "演算法:",
+  "LinesOrientationH" : "線條方向:",
+  "Vertical" : "豎線",
+  "Horizontal" : "橫線",  
+  "DrawCurve" : "畫線方式:",
+  "BezierCurves" : "曲線",
+  "PolyLines" : "折線",  
+  "ResolutionScale" : "解析度倍率",
+  
+  
+ "Download" : "檔案下載:"
+
+}

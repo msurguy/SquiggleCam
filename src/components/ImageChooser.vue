@@ -1,9 +1,9 @@
 <template>
   <div class="image-chooser">
     <div class="button-group stretch">
-      <label>Input:</label>
-      <button id="upload" :disabled="disabled" v-bind:class="{ active: selectedItem === 'upload' }" class="btn" @click="toggle">File</button>
-      <button id="webcam" :disabled="disabled" class="btn" v-bind:class="{ active: selectedItem === 'webcam' }" @click="toggle">WebCam</button>
+      <label>{{$t('Input')}}</label>
+      <button id="upload" :disabled="disabled" v-bind:class="{ active: selectedItem === 'upload' }" class="btn" @click="toggle">{{$t('File')}}</button>
+      <button id="webcam" :disabled="disabled" class="btn" v-bind:class="{ active: selectedItem === 'webcam' }" @click="toggle">{{$t('WebCam')}}</button>
     </div>
   </div>
 </template>
